@@ -52,7 +52,7 @@ export default function Home() {
           </div>
           <Link href="/" className="text-center">
             <span className="block font-serif text-3xl font-black tracking-tight sm:text-4xl">Ixraelle</span>
-            <span className="mt-1 block text-[10px] uppercase tracking-[0.35em] text-blue-300">All voices matter</span>
+            <span className="mt-1 block text-[10px] uppercase tracking-[0.35em] text-blue-300">IGBINOVIA IDEMUDIA ISRAEL</span>
           </Link>
           <div className="flex items-center gap-4 text-sm">
             <Link href="#subscribe" className="hidden font-semibold text-white/90 sm:block">Sign In</Link>
@@ -80,21 +80,16 @@ export default function Home() {
         <HeroSection posts={posts} />
 
         <section className="content-section mx-auto grid max-w-7xl gap-8 border-b border-slate-200 bg-white px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <div>
-            <div className="mb-6 flex items-center justify-between border-b border-white/15 pb-4">
-              <h2 className="font-serif text-2xl font-bold text-slate-950">Breaking News</h2>
-              <span className="text-xs uppercase tracking-[0.2em] text-red-400">Just in</span>
-            </div>
+          <div className="min-h-full">
             {featured ? (
-              <Link href={`/posts/${featured.slug}`} className="group block">
-                <div className="relative h-[27rem] overflow-hidden bg-slate-900 sm:h-[34rem]">
+              <Link href={`/posts/${featured.slug}`} className="group block h-full">
+                <div className="relative h-full min-h-[27rem] overflow-hidden bg-slate-900 sm:min-h-[34rem]">
                   <Image src={featured.banner} alt={featured.title} fill className="object-cover transition duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-                    <span className="inline-flex bg-red-500 px-3 py-2 text-[10px] font-bold uppercase tracking-wider">Breaking</span>
-                    <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">{featured.category}</p>
-                    <h3 className="mt-2 max-w-lg font-serif text-3xl font-bold leading-tight group-hover:text-blue-200 sm:text-4xl">{featured.title}</h3>
-                    <p className="mt-4 text-xs uppercase text-white/55">{featured.date}</p>
+                    <span className="inline-flex bg-blue-800 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-lg">{featured.category}</span>
+                    <h3 className="mt-2 max-w-lg font-serif text-3xl font-bold leading-tight text-white group-hover:text-blue-200 sm:text-4xl">{featured.title}</h3>
+                    <p className="mt-4 text-xs uppercase text-white/70">{featured.date}</p>
                   </div>
                 </div>
               </Link>
@@ -271,7 +266,7 @@ export default function Home() {
 
         <div className="mx-auto max-w-7xl px-5 py-8 text-center sm:px-8">
           <Link href="#top" className="font-serif text-3xl font-black tracking-tight">Ixraelle</Link>
-          <p className="mt-1 text-[9px] uppercase tracking-[0.35em] text-blue-300">All voices matter</p>
+          <p className="mt-1 text-[9px] uppercase tracking-[0.35em] text-blue-300">IGBINOVIA IDEMUDIA ISRAEL</p>
         </div>
       </footer>
     </div>
