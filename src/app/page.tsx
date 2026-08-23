@@ -4,6 +4,7 @@ import { getAllPosts, type PostMetadata } from "../lib/blog";
 import { MobileNav } from "../components/mobile-nav";
 import { DesktopDropdown } from "../components/desktop-dropdown";
 import { HeroSection } from "../components/hero-section";
+import { PostCardMeta } from "../components/post-card-meta";
 
 const navItems = [
   { label: "Home", href: "#top" },
@@ -107,13 +108,14 @@ export default function Home() {
             </div>
             <div className="grid gap-x-6 gap-y-9 sm:grid-cols-2">
               {popular.map((post, index) => (
-                <Link key={`${post.slug}-${index}`} href={`/posts/${post.slug}`} className="blue-card group block overflow-hidden p-3">
+                <Link key={`${post.slug}-${index}`} href={`/posts/${post.slug}`} className="group flex h-full flex-col overflow-hidden">
                   <div className="relative h-36 overflow-hidden bg-slate-900 sm:h-40">
                     <Image src={post.banner} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-110" />
                     <span className="absolute bottom-3 left-3 bg-black px-2 py-1 text-[9px] font-bold uppercase text-white">{post.category}</span>
                   </div>
-                  <h3 className="mt-4 font-serif text-lg font-bold leading-tight group-hover:text-blue-300">{post.title}</h3>
+                  <h3 className="mt-4 font-serif text-lg font-bold leading-tight text-blue-700 group-hover:text-blue-900">{post.title}</h3>
                   <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/50">{post.excerpt}</p>
+                  <PostCardMeta category={post.category} />
                 </Link>
               ))}
             </div>
@@ -144,13 +146,14 @@ export default function Home() {
             </div>
             <div className="grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {posts.concat(posts).slice(0, 6).map((post, index) => (
-                <Link key={`${post.slug}-editor-${index}`} href={`/posts/${post.slug}`} className="blue-card group block overflow-hidden p-3">
+                <Link key={`${post.slug}-editor-${index}`} href={`/posts/${post.slug}`} className="group flex h-full flex-col overflow-hidden">
                   <div className="relative h-40 overflow-hidden bg-slate-900">
                     <Image src={post.banner} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-110" />
                     <span className="absolute bottom-3 left-3 bg-black px-2 py-1 text-[9px] font-bold uppercase text-white">{post.category}</span>
                   </div>
-                  <h3 className="mt-4 font-serif text-lg font-bold leading-tight group-hover:text-blue-300">{post.title}</h3>
+                  <h3 className="mt-4 font-serif text-lg font-bold leading-tight text-blue-700 group-hover:text-blue-900">{post.title}</h3>
                   <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/50">{post.excerpt}</p>
+                  <PostCardMeta category={post.category} />
                 </Link>
               ))}
             </div>
@@ -194,11 +197,12 @@ export default function Home() {
           <div className="mb-8 flex items-end justify-between border-b border-white/15 pb-5"><div><p className="text-xs font-bold uppercase tracking-[0.25em] text-blue-300">The journal</p><h2 className="mt-2 font-serif text-3xl font-bold">Latest stories</h2></div><span className="text-xs uppercase tracking-wider text-white/45">{posts.length} stories</span></div>
           <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {rest.map((post: PostMetadata) => (
-              <Link key={post.slug} href={`/posts/${post.slug}`} className="blue-card group block overflow-hidden p-3">
+              <Link key={post.slug} href={`/posts/${post.slug}`} className="group flex h-full flex-col overflow-hidden">
                 <div className="relative h-52 overflow-hidden bg-slate-900"><Image src={post.banner} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-105" /></div>
                 <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">{post.category}</p>
-                <h3 className="mt-2 font-serif text-2xl font-bold leading-tight group-hover:text-blue-300">{post.title}</h3>
+                <h3 className="mt-2 font-serif text-2xl font-bold leading-tight text-blue-700 group-hover:text-blue-900">{post.title}</h3>
                 <p className="mt-3 line-clamp-2 text-sm leading-6 text-white/55">{post.excerpt}</p>
+                <PostCardMeta category={post.category} />
               </Link>
             ))}
           </div>
@@ -219,8 +223,9 @@ export default function Home() {
                         <Image src={lead.banner} alt={lead.title} fill className="object-cover transition duration-500 group-hover:scale-105" />
                         <span className="absolute bottom-3 left-3 bg-black px-2 py-1 text-[9px] font-bold uppercase text-white">{category}</span>
                       </div>
-                      <h3 className="mt-4 font-serif text-lg font-bold leading-tight group-hover:text-blue-300">{lead.title}</h3>
+                      <h3 className="mt-4 font-serif text-lg font-bold leading-tight text-blue-700 group-hover:text-blue-900">{lead.title}</h3>
                       <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/50">{lead.excerpt}</p>
+                      <PostCardMeta category={lead.category} />
                     </Link>
                   ) : null}
                   <div className="mt-6 divide-y divide-white/10">

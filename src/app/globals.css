@@ -52,20 +52,7 @@ body {
 }
 
 .content-section .group-hover\:text-blue-300:hover {
-  color: #bfdbfe;
-}
-
-.blue-card .text-white\/50,
-.blue-card .text-white\/55,
-.blue-card .text-white\/40,
-.blue-card .text-white\/45 {
-  color: rgba(219, 234, 254, 0.72);
-}
-
-.blue-card {
-  background: linear-gradient(145deg, #0b4f9c, #062b63);
-  color: #ffffff;
-  box-shadow: 0 16px 30px rgba(15, 63, 125, 0.18);
+  color: #1e3a8a;
 }
 
 .hero-section {
