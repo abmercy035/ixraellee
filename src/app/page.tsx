@@ -119,7 +119,7 @@ export default function Home() {
 
         <section className="content-section relative mx-auto max-w-7xl overflow-hidden bg-white px-5 py-10 sm:px-8">
           <div className="relative min-h-44 overflow-hidden bg-[#1168b5]">
-            <Image src="/banners/app-banner.svg" alt="" fill className="object-cover" />
+            <Image src="/images/app-banner.jpg" alt="" fill className="object-cover" />
             <div className="relative flex min-h-44 flex-col justify-center gap-6 px-7 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-10">
               <div className="max-w-md">
                 <h2 className="font-serif text-2xl font-bold">Carry Ixraelle with you.</h2>

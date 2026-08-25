@@ -2,7 +2,7 @@
 title: "Nation State and Public Memory"
 date: "2026-08-15"
 excerpt: "A reflection on how institutions remember, what citizens carry forward, and where technology shapes identity."
-banner: "/banners/state-lines.svg"
+banner: "/images/nation-state.jpg"
 category: "Nation State"
 ---
 

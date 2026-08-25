@@ -39,7 +39,7 @@ export function getAllPosts(): PostMetadata[] {
         title: String(data.title ?? slug),
         date: String(data.date ?? ""),
         excerpt: String(data.excerpt ?? ""),
-        banner: String(data.banner ?? "/banners/default.svg"),
+        banner: String(data.banner ?? "/images/welcome-journal.jpg"),
         category: String(data.category ?? "General"),
       };
     });
@@ -59,7 +59,7 @@ export async function getPostBySlug(slug: string): Promise<PostData> {
     title: String(data.title ?? slug),
     date: String(data.date ?? ""),
     excerpt: String(data.excerpt ?? ""),
-    banner: String(data.banner ?? "/banners/default.svg"),
+    banner: String(data.banner ?? "/images/welcome-journal.jpg"),
     category: String(data.category ?? "General"),
     contentHtml,
   };

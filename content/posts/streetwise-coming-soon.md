@@ -2,7 +2,7 @@
 title: "Streetwise Coming: The City Notes Series"
 date: "2026-08-18"
 excerpt: "A new writing lane focused on city intelligence, movement, and lived observations from the street level."
-banner: "/banners/street-grid.svg"
+banner: "/images/streetwise.jpg"
 category: "Streetwise coming"
 ---
 

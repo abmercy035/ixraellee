@@ -2,7 +2,7 @@
 title: "Welcome to Ixraelle Journal"
 date: "2026-08-19"
 excerpt: "This is the start of a traditional personal blog with category writing, banners, and a markdown-first publishing flow."
-banner: "/banners/lagoon.svg"
+banner: "/images/welcome-journal.jpg"
 category: "Personal"
 ---
 
