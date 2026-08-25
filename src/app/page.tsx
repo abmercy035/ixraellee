@@ -122,7 +122,7 @@ export default function Home() {
             <Image src="/images/app-banner.jpg" alt="" fill className="object-cover" />
             <div className="relative flex min-h-44 flex-col justify-center gap-6 px-7 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-10">
               <div className="max-w-md">
-                <h2 className="font-serif text-2xl font-bold">Carry Ixraelle with you.</h2>
+                <h2 className="font-serif text-2xl font-bold">Carry ixraelleewith you.</h2>
                 <p className="mt-2 text-sm leading-6 text-blue-100">Read new stories, field notes, and ideas wherever you are.</p>
               </div>
               <div className="flex gap-3">
@@ -172,7 +172,7 @@ export default function Home() {
 
             <form id="subscribe" className="mt-8 bg-[#176fc0] p-6" action="#subscribe">
               <h2 className="font-serif text-xl font-bold">Subscribe Now</h2>
-              <p className="mt-2 text-sm leading-6 text-blue-100">Get new stories from Ixraelle in your inbox.</p>
+              <p className="mt-2 text-sm leading-6 text-blue-100">Get new stories from ixraelleein your inbox.</p>
               <label className="mt-5 block text-xs font-bold uppercase tracking-wider text-blue-100" htmlFor="name">Your name</label>
               <input id="name" name="name" type="text" placeholder="Your name" className="mt-2 w-full bg-white px-3 py-3 text-sm text-slate-950 outline-none placeholder:text-slate-400" />
               <label className="mt-4 block text-xs font-bold uppercase tracking-wider text-blue-100" htmlFor="email">Your email</label>

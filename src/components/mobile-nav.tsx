@@ -60,7 +60,7 @@ export function MobileNav({ items }: MobileNavProps) {
         >
           <div className="flex items-center justify-between border-b border-white/15 px-5 py-5">
             <Link href="/" onClick={() => setOpen(false)} className="font-serif text-xl font-black text-white">
-              Ixraelle Journal
+              ixraelleeJournal
             </Link>
             <button
               type="button"

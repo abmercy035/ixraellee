@@ -11,7 +11,7 @@ type HeroSectionProps = {
 };
 
 export function HeroSection({ posts }: HeroSectionProps) {
-  const welcome = posts.find((post) => post.slug === "welcome-to-ixraelle-journal") ?? posts[0];
+  const welcome = posts.find((post) => post.slug === "welcome-to-ixraellee-journal") ?? posts[0];
   const cardPosts = welcome ? [welcome, ...posts.filter((post) => post.slug !== welcome.slug)].slice(0, 3) : [];
   const [activeIndex, setActiveIndex] = useState(0);
   const heroRef = useRef<HTMLElement>(null);
@@ -38,7 +38,7 @@ export function HeroSection({ posts }: HeroSectionProps) {
     const stableHero: HTMLElement = heroElement;
     const drawingContext: CanvasRenderingContext2D = context;
 
-    const particles = Array.from({ length: 600}, (_, index) => ({
+    const particles = Array.from({ length: 600 }, (_, index) => ({
       angle: (index / 603) * Math.PI * 2,
       radius: 50 + ((index * 37) % 390),
       size: 1.8 + ((index * 13) % 10) / 3,
@@ -223,7 +223,7 @@ export function HeroSection({ posts }: HeroSectionProps) {
 
         <div className="relative order-1 max-w-2xl lg:order-1">
           <p className="hero-kicker text-xs font-bold uppercase tracking-[0.38em] text-blue-700">A journal by Ixraelle</p>
-          <h1 className="mt-5 font-serif text-5xl font-black leading-[0.98] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">Welcome to Ixraelle Journal</h1>
+          <h1 className="mt-5 font-serif text-5xl font-black leading-[0.98] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">Welcome to ixraelleeJournal</h1>
           <p className="mt-7 max-w-xl text-xl leading-8 text-slate-700 sm:text-2xl">Stories from the life we live, the work we build, and the ideas that keep moving.</p>
           <blockquote className="mt-8 max-w-lg border-l-2 border-blue-600 pl-5 text-base italic leading-7 text-slate-600 sm:text-lg">“A place for paying attention: to people, to places, and to what becomes possible.”</blockquote>
           <div className="mt-10 flex items-center gap-4 text-xs uppercase tracking-[0.2em] text-slate-500"><span className="h-px w-12 bg-blue-600/70" /> Personal essays · field notes · reflections</div>

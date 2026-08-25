@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ixraelle | Blog",
+  title: "ixraellee| Blog",
   description:
-    "Traditional personal blog for Ixraelle with banners, categories, and markdown posts.",
+    "Traditional personal blog for ixraelleewith banners, categories, and markdown posts.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   const post = await getPostBySlug(slug);
 
   return {
-    title: `${post.title} | Ixraelle Journal`,
+    title: `${post.title} | ixraelleeJournal`,
     description: post.excerpt,
   };
 }
@@ -30,7 +30,7 @@ export default async function PostPage({ params }: PostPageProps) {
       <header className="sticky top-0 z-40 border-b border-white/15 bg-[#050505]/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/" className="font-serif text-2xl font-black tracking-tight text-white sm:text-3xl">
-            Ixraelle Journal
+            ixraelleeJournal
           </Link>
           <Link href="/" className="text-sm font-semibold text-blue-300 hover:text-blue-200">
             Back to home
