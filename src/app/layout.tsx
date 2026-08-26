@@ -3,9 +3,25 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ixraellee| Blog",
+  title: {
+    default: "Ixraellee Journal | Stories, Tech & Ideas",
+    template: "%s | Ixraellee Journal",
+  },
   description:
-    "Traditional personal blog for ixraelleewith banners, categories, and markdown posts.",
+    "Personal blog and publication by Igbinovia Idemudia Israel (Ixraelle) featuring writing on life, technology, civic innovation, and philosophy.",
+  openGraph: {
+    title: "Ixraellee Journal | Stories, Tech & Ideas",
+    description:
+      "Personal blog and publication by Igbinovia Idemudia Israel (Ixraelle) featuring writing on life, technology, civic innovation, and philosophy.",
+    siteName: "Ixraellee Journal",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ixraellee Journal",
+    description: "Personal blog and publication by Ixraelle.",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

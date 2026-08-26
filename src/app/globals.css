@@ -23,6 +23,31 @@ body {
   font-family: var(--font-body), Arial, Helvetica, sans-serif;
 }
 
+/* Custom scrollbar styling (faint white) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Firefox scrollbar support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) rgba(255, 255, 255, 0.02);
+}
+
 ::selection {
   background: rgba(37, 99, 235, 0.25);
   color: #ffffff;
@@ -36,24 +61,6 @@ body {
   color: #0f172a;
 }
 
-.content-section .text-blue-300 {
-  color: #1d4ed8;
-}
-
-.content-section .text-blue-200 {
-  color: #1e3a8a;
-}
-
-.content-section .text-white\/50,
-.content-section .text-white\/55,
-.content-section .text-white\/40,
-.content-section .text-white\/45 {
-  color: #475569;
-}
-
-.content-section .group-hover\:text-blue-300:hover {
-  color: #1e3a8a;
-}
 
 .hero-section {
   background: radial-gradient(circle at 70% 42%, rgba(59, 130, 246, 0.16), transparent 30%), #ffffff;

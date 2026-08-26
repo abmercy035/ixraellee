@@ -1,5 +1,5 @@
 ---
-title: "Welcome to ixraelleeJournal"
+title: "Welcome to Ixraellee Journal"
 date: "2026-08-19"
 excerpt: "This is the start of a traditional personal blog with category writing, banners, and a markdown-first publishing flow."
 banner: "/images/welcome-journal.jpg"

@@ -1,68 +1,83 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getAllPosts, type PostMetadata } from "../lib/blog";
+import {
+  getAllPosts,
+  getHeroPosts,
+  getFeaturedPosts,
+  getPopularPosts,
+  getLatestPosts,
+  getWorthReadingPosts,
+} from "../lib/blog";
 import { MobileNav } from "../components/mobile-nav";
 import { DesktopDropdown } from "../components/desktop-dropdown";
 import { HeroSection } from "../components/hero-section";
 import { PostCardMeta } from "../components/post-card-meta";
+import { Search } from "lucide-react";
 
 const navItems = [
-  { label: "Home", href: "#top" },
+  { label: "Home", href: "/" },
   {
     label: "My Life",
     children: [
-      { label: "Personal", href: "#categories" },
-      // { label: "Streetwise coming", href: "#categories" },
-      { label: "Professional", href: "#categories" },
+      { label: "Personal", href: "/life" },
+      { label: "Professional", href: "/life" },
     ],
   },
   {
     label: "My WORKs",
     children: [
-      { label: "Zion's Sake", href: "#categories" },
-      { label: "Digitize Africa", href: "#categories" },
-      { label: "Not Rocket Science", href: "#categories" },
-      { label: "Formalize Pidgin", href: "#categories" },
-      { label: "Citizens Participation Support", href: "#categories" },
+      { label: "Zion's Sake", href: "/works" },
+      { label: "Digitize Africa", href: "/works" },
+      { label: "Not Rocket Science", href: "/works" },
+      { label: "Formalize Pidgin", href: "/works" },
+      { label: "Citizens Participation Support", href: "/works" },
     ],
   },
   {
     label: "My Thoughts",
     children: [
-      { label: "Philosophy", href: "#categories" },
-      { label: "Nation State", href: "#categories" },
-      { label: "Technology", href: "#categories" },
+      { label: "Philosophy", href: "/thoughts" },
+      { label: "Nation State", href: "/thoughts" },
+      { label: "Technology", href: "/thoughts" },
     ],
   },
-  { label: "Friends of Ixrael (FIX)", href: "#fix" },
+  { label: "Friends of Ixrael (FIX)", href: "/friends" },
 ];
 
-export default function Home() {
-  const posts = getAllPosts();
-  const [featured, ...rest] = posts;
-  const categories = Array.from(new Set(posts.map((post) => post.category)));
-  const popular = posts.length > 0 ? Array.from({ length: 4 }, (_, index) => posts[index % posts.length]) : [];
+export default async function Home() {
+  const [allPosts, heroPosts, featuredPosts, popularPosts, latestPosts, worthReadingPosts] =
+    await Promise.all([
+      getAllPosts(),
+      getHeroPosts(),
+      getFeaturedPosts(),
+      getPopularPosts(4),
+      getLatestPosts(6),
+      getWorthReadingPosts(6),
+    ]);
+
+  const featured = featuredPosts[0] || allPosts[0];
+  const categories = Array.from(new Set(allPosts.map((post) => post.category)));
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
+      {/* ── Header ─────────────────────────────────────────────── */}
       <header className="relative z-30 bg-[#050505]">
         <div className="mx-auto flex h-24 max-w-7xl items-center justify-between border-b border-white/15 px-5 sm:px-8">
           <div className="flex items-center gap-5">
             <MobileNav items={navItems} />
           </div>
           <Link href="/" className="text-center">
-            <span className="block font-serif text-3xl font-black tracking-tight sm:text-4xl">Ixraelle</span>
+            <span className="block font-serif text-3xl font-black tracking-tight sm:text-4xl">Ixraellee</span>
             <span className="mt-1 block text-[10px] uppercase tracking-[0.35em] text-blue-300">IGBINOVIA IDEMUDIA ISRAEL</span>
           </Link>
-          <div className="flex items-center gap-4 text-sm">
-            <Link href="#subscribe" className="hidden font-semibold text-white/90 sm:block">Sign In</Link>
-            <Link href="#subscribe" className="bg-white px-4 py-3 font-semibold text-black transition hover:bg-blue-200">Subscribe Now</Link>
+          <div className="flex items-center gap-4 text-xs">
+            <Link href="#subscribe" className="bg-white px-3 py-2 font-semibold text-black transition hover:bg-blue-200">Subscribe Now</Link>
           </div>
         </div>
 
         <nav className="hidden h-16 items-center justify-center border-b border-white/15 lg:flex">
           <div className="flex items-center gap-10 text-[11px] font-bold uppercase">
-            <span className="mr-4 text-xl font-normal">⌕</span>
+            <Search className="mr-4 h-5 w-5 text-slate-300 cursor-pointer hover:text-white transition" />
             {navItems.map((item) => (
               "children" in item ? (
                 <DesktopDropdown key={item.label} label={item.label} dropdownItems={item.children ?? []} />
@@ -76,196 +91,267 @@ export default function Home() {
         </nav>
       </header>
 
+      {/* ── Main ────────────────────────────────────────────────── */}
       <main id="top" className="relative overflow-hidden bg-white text-slate-950">
-        <HeroSection posts={posts} />
 
-        <section className="content-section mx-auto grid max-w-7xl gap-8 border-b border-slate-200 bg-white px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="min-h-full">
-            {featured ? (
-              <Link href={`/posts/${featured.slug}`} className="group block h-full">
-                <div className="relative h-full min-h-[27rem] overflow-hidden bg-slate-900 sm:min-h-[34rem]">
-                  <Image src={featured.banner} alt={featured.title} fill className="object-cover transition duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-                    <span className="inline-flex bg-blue-800 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-lg">{featured.category}</span>
-                    <h3 className="mt-2 max-w-lg font-serif text-3xl font-bold leading-tight text-white group-hover:text-blue-200 sm:text-4xl">{featured.title}</h3>
-                    <p className="mt-4 text-xs uppercase text-white/70">{featured.date}</p>
-                  </div>
+        {/* SECTION 1: Hero Carousel */}
+        <HeroSection posts={heroPosts.length > 0 ? heroPosts : allPosts} />
+
+        {/* SECTION 2: Featured (big left) + Popular Now (2×2 right) */}
+        {featured && (
+          <section className="border-b border-slate-200">
+            <div className="mx-auto grid max-w-7xl gap-0 lg:grid-cols-[0.9fr_1.1fr]">
+
+              {/* Left: Big Featured Card */}
+              <Link href={`/posts/${featured.slug}`} className="group relative block min-h-[460px] overflow-hidden bg-slate-900">
+                <Image
+                  src={featured.banner || "/images/welcome-journal.jpg"}
+                  alt={featured.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover opacity-80 transition duration-700 group-hover:scale-105 group-hover:opacity-70"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+                  <span className="inline-block bg-blue-600 px-3 py-1 text-[10px] font-black uppercase tracking-widest">
+                    {featured.category}
+                  </span>
+                  <h2 className="mt-3 font-serif text-2xl font-black leading-tight sm:text-3xl">
+                    {featured.title}
+                  </h2>
+                  <p className="mt-1 text-xs text-white/60">{featured.date}</p>
                 </div>
               </Link>
-            ) : null}
-          </div>
 
-          <div>
-            <div className="mb-6 flex items-center justify-between border-b border-white/15 pb-4">
-              <h2 className="font-serif text-2xl font-bold text-slate-950">Popular Now</h2>
-              <span className="text-xs uppercase tracking-[0.2em] text-white/45">Most read</span>
-            </div>
-            <div className="grid gap-x-6 gap-y-9 sm:grid-cols-2">
-              {popular.map((post, index) => (
-                <Link key={`${post.slug}-${index}`} href={`/posts/${post.slug}`} className="group flex h-full flex-col overflow-hidden">
-                  <div className="relative h-36 overflow-hidden bg-slate-900 sm:h-40">
-                    <Image src={post.banner} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-110" />
-                    <span className="absolute bottom-3 left-3 bg-black px-2 py-1 text-[9px] font-bold uppercase text-white">{post.category}</span>
-                  </div>
-                  <h3 className="mt-4 font-serif text-lg font-bold leading-tight text-blue-700 group-hover:text-blue-900">{post.title}</h3>
-                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/50">{post.excerpt}</p>
-                  <PostCardMeta category={post.category} />
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="content-section relative mx-auto max-w-7xl overflow-hidden bg-white px-5 py-10 sm:px-8">
-          <div className="relative min-h-44 overflow-hidden bg-[#1168b5]">
-            <Image src="/images/app-banner.jpg" alt="" fill className="object-cover" />
-            <div className="relative flex min-h-44 flex-col justify-center gap-6 px-7 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-10">
-              <div className="max-w-md">
-                <h2 className="font-serif text-2xl font-bold">Carry ixraelleewith you.</h2>
-                <p className="mt-2 text-sm leading-6 text-blue-100">Read new stories, field notes, and ideas wherever you are.</p>
-              </div>
-              <div className="flex gap-3">
-                <span className="rounded-md bg-black px-4 py-2 text-xs font-bold text-white">App Store</span>
-                <span className="rounded-md bg-black px-4 py-2 text-xs font-bold text-white">Google Play</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="content-section mx-auto grid max-w-7xl gap-10 border-b border-slate-200 bg-white px-5 py-16 sm:px-8 lg:grid-cols-[1fr_300px]">
-          <div>
-            <div className="mb-6 flex items-center justify-between border-b border-white/15 pb-4">
-              <h2 className="font-serif text-2xl font-bold text-slate-950">Editor Choice</h2>
-              <span className="text-xs uppercase tracking-[0.2em] text-blue-300">Curated</span>
-            </div>
-            <div className="grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-              {posts.concat(posts).slice(0, 6).map((post, index) => (
-                <Link key={`${post.slug}-editor-${index}`} href={`/posts/${post.slug}`} className="group flex h-full flex-col overflow-hidden">
-                  <div className="relative h-40 overflow-hidden bg-slate-900">
-                    <Image src={post.banner} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-110" />
-                    <span className="absolute bottom-3 left-3 bg-black px-2 py-1 text-[9px] font-bold uppercase text-white">{post.category}</span>
-                  </div>
-                  <h3 className="mt-4 font-serif text-lg font-bold leading-tight text-blue-700 group-hover:text-blue-900">{post.title}</h3>
-                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/50">{post.excerpt}</p>
-                  <PostCardMeta category={post.category} />
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <aside>
-            <h2 className="mb-6 border-b border-white/15 pb-4 font-serif text-2xl font-bold">Worth Reading</h2>
-            <div className="space-y-5">
-              {posts.map((post) => (
-                <Link key={`worth-${post.slug}`} href={`/posts/${post.slug}`} className="group flex gap-4 border-b border-white/10 pb-5">
-                  <div className="relative h-16 w-24 shrink-0 overflow-hidden bg-slate-900">
-                    <Image src={post.banner} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-110" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold leading-5 group-hover:text-blue-300">{post.title}</h3>
-                    <p className="mt-2 text-[10px] uppercase text-white/40">{post.date} / {post.category}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            <form id="subscribe" className="mt-8 bg-[#176fc0] p-6" action="#subscribe">
-              <h2 className="font-serif text-xl font-bold">Subscribe Now</h2>
-              <p className="mt-2 text-sm leading-6 text-blue-100">Get new stories from ixraelleein your inbox.</p>
-              <label className="mt-5 block text-xs font-bold uppercase tracking-wider text-blue-100" htmlFor="name">Your name</label>
-              <input id="name" name="name" type="text" placeholder="Your name" className="mt-2 w-full bg-white px-3 py-3 text-sm text-slate-950 outline-none placeholder:text-slate-400" />
-              <label className="mt-4 block text-xs font-bold uppercase tracking-wider text-blue-100" htmlFor="email">Your email</label>
-              <input id="email" name="email" type="email" placeholder="Your email" required className="mt-2 w-full bg-white px-3 py-3 text-sm text-slate-950 outline-none placeholder:text-slate-400" />
-              <button type="submit" className="mt-4 w-full bg-black px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-900">Subscribe</button>
-            </form>
-          </aside>
-        </section>
-
-        {/* <section id="categories" className="content-section mx-auto max-w-7xl border-b border-slate-200 bg-white px-5 py-16 sm:px-8">
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-4 text-xs font-bold uppercase tracking-[0.2em] text-white/55">
-            <span className="text-blue-300">Explore</span>
-            {categories.map((category) => <a key={category} href="#archive" className="transition hover:text-white">{category}</a>)}
-          </div>
-        </section> */}
-        <section id="archive" className="content-section mx-auto max-w-7xl bg-white px-5 py-16 sm:px-8">
-          <div className="mb-8 flex items-end justify-between border-b border-white/15 pb-5"><div><p className="text-xs font-bold uppercase tracking-[0.25em] text-blue-300">The journal</p><h2 className="mt-2 font-serif text-3xl font-bold">Latest stories</h2></div><span className="text-xs uppercase tracking-wider text-white/45">{posts.length} stories</span></div>
-          <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-            {rest.map((post: PostMetadata) => (
-              <Link key={post.slug} href={`/posts/${post.slug}`} className="group flex h-full flex-col overflow-hidden">
-                <div className="relative h-52 overflow-hidden bg-slate-900"><Image src={post.banner} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-105" /></div>
-                <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">{post.category}</p>
-                <h3 className="mt-2 font-serif text-2xl font-bold leading-tight text-blue-700 group-hover:text-blue-900">{post.title}</h3>
-                <p className="mt-3 line-clamp-2 text-sm leading-6 text-white/55">{post.excerpt}</p>
-                <PostCardMeta category={post.category} />
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="content-section mx-auto max-w-7xl border-t border-slate-200 bg-white px-5 py-16 sm:px-8">
-          <div className="grid gap-10 lg:grid-cols-3">
-            {categories.slice(0, 3).map((category) => {
-              const categoryPosts = posts.filter((post) => post.category === category);
-              const [lead, ...items] = categoryPosts.length > 0 ? categoryPosts : posts;
-
-              return (
-                <section key={category}>
-                  <h2 className="mb-5 border-b border-white/15 pb-4 text-xs font-bold uppercase tracking-[0.24em] text-blue-300">{category}</h2>
-                  {lead ? (
-                    <Link href={`/posts/${lead.slug}`} className="group block">
-                      <div className="relative h-40 overflow-hidden bg-slate-900">
-                        <Image src={lead.banner} alt={lead.title} fill className="object-cover transition duration-500 group-hover:scale-105" />
-                        <span className="absolute bottom-3 left-3 bg-black px-2 py-1 text-[9px] font-bold uppercase text-white">{category}</span>
+              {/* Right: Popular Now */}
+              <div className="border-l border-slate-200 p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-serif text-xl font-black text-slate-950">Popular Now</h2>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Most Read</span>
+                </div>
+                <div className="grid grid-cols-2 gap-5">
+                  {popularPosts.slice(0, 4).map((post) => (
+                    <Link key={post.slug} href={`/posts/${post.slug}`} className="group space-y-3">
+                      <div className="relative h-36 w-full overflow-hidden bg-slate-100">
+                        <Image
+                          src={post.banner}
+                          alt={post.title}
+                          fill
+                          sizes="(max-width: 1024px) 50vw, 280px"
+                          className="object-cover transition duration-500 group-hover:scale-105"
+                        />
+                        <span className="absolute bottom-2 left-2 bg-slate-900/80 px-2 py-0.5 text-[9px] font-black uppercase text-white tracking-wider">
+                          {post.category}
+                        </span>
                       </div>
-                      <h3 className="mt-4 font-serif text-lg font-bold leading-tight text-blue-700 group-hover:text-blue-900">{lead.title}</h3>
-                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/50">{lead.excerpt}</p>
-                      <PostCardMeta category={lead.category} />
+                      <div>
+                        <h3 className="text-sm font-bold leading-5 text-slate-900 group-hover:text-blue-700 line-clamp-2">{post.title}</h3>
+                        <p className="mt-1.5 text-[11px] text-slate-500 line-clamp-2">{post.excerpt}</p>
+                        <PostCardMeta category={post.category} />
+                      </div>
                     </Link>
-                  ) : null}
-                  <div className="mt-6 divide-y divide-white/10">
-                    {items.concat(posts).slice(0, 3).map((post, index) => (
-                      <Link key={`${category}-${post.slug}-${index}`} href={`/posts/${post.slug}`} className="group flex gap-3 py-4 first:pt-0">
-                        <div className="relative h-14 w-20 shrink-0 overflow-hidden bg-slate-900">
-                          <Image src={post.banner} alt={post.title} fill className="object-cover" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* SECTION 3: Editor's Choice + Worth Reading aside */}
+        {latestPosts.length > 0 && (
+          <section className="border-b border-slate-200">
+            <div className="mx-auto grid max-w-7xl gap-0 lg:grid-cols-[1fr_320px]">
+
+              {/* Left: Editor's Choice – 3×2 grid */}
+              <div className="border-r border-slate-200 p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-serif text-xl font-black text-slate-950">Editor Choice</h2>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Curated</span>
+                </div>
+                <div className="grid grid-cols-3 gap-6">
+                  {latestPosts.slice(0, 6).map((post) => (
+                    <Link key={post.slug} href={`/posts/${post.slug}`} className="group space-y-3">
+                      <div className="relative h-40 w-full overflow-hidden bg-slate-100">
+                        <Image
+                          src={post.banner}
+                          alt={post.title}
+                          fill
+                          sizes="220px"
+                          className="object-cover transition duration-500 group-hover:scale-105"
+                        />
+                        <span className="absolute bottom-2 left-2 bg-slate-900/80 px-2 py-0.5 text-[9px] font-black uppercase text-white tracking-wider">
+                          {post.category}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold leading-5 text-blue-700 group-hover:underline line-clamp-2">{post.title}</h3>
+                        <p className="mt-1.5 text-[11px] text-slate-500 line-clamp-2">{post.excerpt}</p>
+                        <PostCardMeta category={post.category} />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right: Worth Reading sidebar */}
+              <div className="bg-white p-6 space-y-6">
+                <h2 className="font-serif text-xl font-black text-slate-950">Worth Reading</h2>
+                <div className="space-y-4">
+                  {worthReadingPosts.slice(0, 5).map((post) => (
+                    <Link key={post.slug} href={`/posts/${post.slug}`} className="group flex gap-3 items-start">
+                      <div className="relative h-14 w-20 shrink-0 overflow-hidden bg-slate-100">
+                        <Image
+                          src={post.banner}
+                          alt={post.title}
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xs font-bold leading-4 text-slate-900 group-hover:text-blue-700 line-clamp-2">{post.title}</h3>
+                        <p className="mt-1 text-[10px] text-slate-400">{post.date} / <span className="uppercase">{post.category}</span></p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Subscribe box inside sidebar */}
+                <div id="subscribe" className="hidden rounded-lg bg-blue-600 p-5 text-white space-y-3">
+                  <h3 className="font-serif text-base font-black">Subscribe Now</h3>
+                  <p className="text-xs text-blue-100 leading-5">Get new stories from ixraellee in your inbox.</p>
+                  <form action="/api/subscribe" method="POST" className="space-y-2">
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="Your Name"
+                      className="w-full rounded bg-white/20 px-3 py-2 text-xs text-white placeholder-blue-200 outline-none focus:bg-white/30"
+                    />
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      placeholder="Your Email"
+                      className="w-full rounded bg-white/20 px-3 py-2 text-xs text-white placeholder-blue-200 outline-none focus:bg-white/30"
+                    />
+                    <button
+                      type="submit"
+                      className="w-full rounded bg-white py-2 text-xs font-black uppercase tracking-wider text-blue-700 transition hover:bg-blue-50 cursor-pointer"
+                    >
+                      Subscribe
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* SECTION 4: Categories — each column: big top post + 3 small list posts */}
+        {categories.length > 0 && (
+          <section className="border-b border-slate-200 px-5 py-12 sm:px-8">
+            <div className="mx-auto max-w-7xl">
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {categories.map((cat) => {
+                  const catPosts = allPosts.filter((p) => p.category === cat);
+                  const topPost = catPosts[0];
+                  const restPosts = catPosts.slice(1, 4);
+                  if (!topPost) return null;
+                  return (
+                    <div key={cat} className="space-y-5">
+                      {/* Category Label */}
+                      <div className="border-b-2 border-blue-600 pb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">{cat}</span>
+                      </div>
+
+                      {/* Big top post */}
+                      <Link href={`/posts/${topPost.slug}`} className="group block space-y-3">
+                        <div className="relative h-44 w-full overflow-hidden bg-slate-100">
+                          <Image
+                            src={topPost.banner}
+                            alt={topPost.title}
+                            fill
+                            sizes="(max-width: 1024px) 100vw, 360px"
+                            className="object-cover transition duration-500 group-hover:scale-105"
+                          />
+                          <span className="absolute bottom-2 left-2 bg-slate-900/80 px-2 py-0.5 text-[9px] font-black uppercase text-white tracking-wider">
+                            {topPost.category}
+                          </span>
                         </div>
-                        <div>
-                          <p className="text-[9px] uppercase text-white/40">{post.date}</p>
-                          <h4 className="mt-1 text-xs font-bold leading-5 group-hover:text-blue-300">{post.title}</h4>
-                        </div>
+                        <h3 className="text-base font-bold leading-6 text-blue-700 group-hover:underline line-clamp-2">{topPost.title}</h3>
+                        <p className="text-xs text-slate-500 line-clamp-2">{topPost.excerpt}</p>
+                        <PostCardMeta category={topPost.category} />
                       </Link>
-                    ))}
-                  </div>
-                </section>
-              );
-            })}
-          </div>
-        </section>
+
+                      {/* Small list posts */}
+                      <div className="space-y-3 border-t border-slate-100 pt-4">
+                        {restPosts.map((post) => (
+                          <Link key={post.slug} href={`/posts/${post.slug}`} className="group flex gap-3 items-center">
+                            <div className="relative h-12 w-16 shrink-0 overflow-hidden bg-slate-100">
+                              <Image src={post.banner} alt={post.title} fill sizes="64px" className="object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[10px] text-slate-400">{post.date}</p>
+                              <h4 className="text-xs font-bold leading-4 text-slate-800 group-hover:text-blue-700 line-clamp-2">{post.title}</h4>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
+      {/* ── Footer ──────────────────────────────────────────────── */}
       <footer className="border-t border-white/15 bg-black">
         <section className="mx-auto flex max-w-7xl flex-col gap-6 border-b border-white/15 px-5 py-10 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
-          <h2 className="max-w-sm font-serif text-2xl font-bold leading-tight">Stay informed and not overwhelmed, subscribe now!</h2>
-          <form className="flex w-full max-w-xl" action="#subscribe">
+          <h2 className="max-w-sm font-serif text-2xl font-bold leading-tight">Stay informed!</h2>
+          <form className="flex w-full max-w-xl" action="/api/subscribe" method="POST">
             <label className="sr-only" htmlFor="footer-email">Email address</label>
-            <input id="footer-email" name="email" type="email" required placeholder="Your email" className="min-w-0 flex-1 bg-white px-4 py-3 text-sm text-slate-950 outline-none placeholder:text-slate-400" />
-            <button type="submit" className="bg-blue-600 px-5 py-3 text-xs font-bold text-white transition hover:bg-blue-500">Subscribe</button>
+            <input id="footer-email" name="email" type="email" required placeholder="Your email" className="min-w-0 rounded-l-sm flex-1 bg-white px-4 py-3 text-sm text-slate-950 outline-none placeholder:text-slate-400" />
+            <button type="submit" className="bg-blue-600 rounded-r-sm px-5 py-3 text-xs font-bold text-white transition hover:bg-blue-500 cursor-pointer">Subscribe</button>
           </form>
         </section>
 
-        <section className="mx-auto grid max-w-7xl gap-10 border-b border-white/10 px-5 py-10 text-sm sm:grid-cols-2 sm:px-8 lg:grid-cols-4">
+        <section className="mx-auto grid max-w-7xl gap-10 border-b border-white/10 px-5 py-10 text-sm sm:grid-cols-2 sm:px-8">
           <div>
             <h3 className="font-bold">Business Hours</h3>
             <p className="mt-4 text-xs leading-6 text-white/45">Monday - Friday: 08:00 - 20:00<br />Saturday - Sunday: 09:00 - 14:00</p>
-            <div className="mt-5 flex gap-2"><span className="border border-white/20 px-2 py-1 text-xs">f</span><span className="border border-white/20 px-2 py-1 text-xs">x</span><span className="border border-white/20 px-2 py-1 text-xs">◎</span><span className="border border-white/20 px-2 py-1 text-xs">▶</span></div>
+            <div className="mt-5 flex items-center gap-3">
+              <a href="https://instagram.com" target="_blank" rel="noreferrer" title="Instagram" className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 text-white transition hover:bg-white/10 hover:border-blue-400">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              </a>
+              <a href="https://x.com" target="_blank" rel="noreferrer" title="X.com" className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 text-white transition hover:bg-white/10 hover:border-blue-400">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noreferrer" title="LinkedIn" className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 text-white transition hover:bg-white/10 hover:border-blue-400">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.74a1.65 1.65 0 1 0 0 3.3 1.65 1.65 0 0 0 0-3.3z"/></svg>
+              </a>
+            </div>
           </div>
-          <div><h3 className="font-bold">Categories</h3><div className="mt-4 space-y-2 text-xs text-white/45">{categories.map((category) => <a key={`footer-${category}`} href="#categories" className="block hover:text-blue-300">{category}</a>)}</div></div>
-          <div><h3 className="font-bold">Information</h3><div className="mt-4 space-y-2 text-xs text-white/45"><a href="#" className="block hover:text-blue-300">Privacy Policy</a><a href="#" className="block hover:text-blue-300">Terms & Conditions</a><a href="#top" className="block hover:text-blue-300">Site Map</a><a href="#archive" className="block hover:text-blue-300">FAQ</a><a href="#fix" className="block hover:text-blue-300">Friends of Ixrael</a></div></div>
-          <div><h3 className="font-bold">Company</h3><div className="mt-4 space-y-2 text-xs text-white/45"><a href="#top" className="block hover:text-blue-300">About</a><a href="#subscribe" className="block hover:text-blue-300">Contact</a><a href="#archive" className="block hover:text-blue-300">Our Stories</a><a href="#categories" className="block hover:text-blue-300">Contributors</a><a href="#fix" className="block hover:text-blue-300">Collaborate</a></div></div>
+
+          <div>
+            <h3 className="font-bold">Categories</h3>
+            <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-white/45">
+              {categories.map((category) => (
+                <Link key={`footer-${category}`} href={`/categories/${encodeURIComponent(category.toLowerCase())}`} className="block hover:text-blue-300">
+                  {category}
+                </Link>
+              ))}
+              <Link href="/friends" className="block font-semibold text-blue-400 hover:text-blue-300">
+                Friends of Ixrael
+              </Link>
+            </div>
+          </div>
         </section>
 
         <div className="mx-auto max-w-7xl px-5 py-8 text-center sm:px-8">
-          <Link href="#top" className="font-serif text-3xl font-black tracking-tight">Ixraelle</Link>
+          <Link href="#top" className="font-serif text-3xl font-black tracking-tight">Ixraellee</Link>
           <p className="mt-1 text-[9px] uppercase tracking-[0.35em] text-blue-300">IGBINOVIA IDEMUDIA ISRAEL</p>
         </div>
       </footer>
