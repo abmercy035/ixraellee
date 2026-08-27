@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getAllPosts } from "../../lib/blog";
+import { getAllPosts, PostMetadata } from "../../lib/blog";
 
 export default async function ThoughtsPage() {
-  const posts = (await getAllPosts()).filter((p) =>
-    ["Philosophy", "Nation State", "Technology"].includes(p.category)
+  const allPosts = await getAllPosts();
+  const posts = allPosts.filter((p: PostMetadata) =>
+    ["Philosophy", "Society", "Technology"].includes(p.category)
   );
 
   return (
@@ -28,7 +29,7 @@ export default async function ThoughtsPage() {
         </div>
 
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
+          {posts.map((post: PostMetadata) => (
             <Link key={post.slug} href={`/posts/${post.slug}`} className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0b0f18] transition hover:border-white/25">
               <div className="relative h-48 w-full overflow-hidden">
                 <Image src={post.banner} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-105" />

@@ -8,11 +8,11 @@ export const metadata: Metadata = {
     template: "%s | Ixraellee Journal",
   },
   description:
-    "Personal blog and publication by Igbinovia Idemudia Israel (Ixraelle) featuring writing on life, technology, civic innovation, and philosophy.",
+    "Personal blog and publication by Igbinovia Idemudia Israel (Ixraellee) featuring writing on life, technology, civic innovation, and philosophy.",
   openGraph: {
     title: "Ixraellee Journal | Stories, Tech & Ideas",
     description:
-      "Personal blog and publication by Igbinovia Idemudia Israel (Ixraelle) featuring writing on life, technology, civic innovation, and philosophy.",
+      "Personal blog and publication by Igbinovia Idemudia Israel (Ixraellee) featuring writing on life, technology, civic innovation, and philosophy.",
     siteName: "Ixraellee Journal",
     locale: "en_US",
     type: "website",

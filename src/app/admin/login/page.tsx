@@ -21,8 +21,8 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#050505] px-4 text-white">
-      <div className="w-full max-w-md rounded-3xl border border-white/15 bg-[#0b0f18] p-8 shadow-2xl">
+    <div className="flex min-h-screen items-center justify-center bg-[#050505] px-4 py-8 text-white">
+      <div className="w-full max-w-md rounded-3xl border border-white/15 bg-[#0b0f18] p-6 sm:p-8 shadow-2xl">
         <div className="text-center">
           <Link href="/" className="font-serif text-3xl font-black text-white">
             Ixraelle

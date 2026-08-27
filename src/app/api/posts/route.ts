@@ -47,7 +47,7 @@ export async function POST(request: Request) {
         worthReading: worthReading === true,
         date: new Date().toISOString().split("T")[0],
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     return NextResponse.json(post, { status: 200 });

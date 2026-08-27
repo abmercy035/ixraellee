@@ -23,6 +23,6 @@ The next entries will cover life, ideas, and practical work:
 
 1. Personal and streetwise entries
 2. Professional updates
-3. Philosophy, nation-state reflection, and technology
+3. Philosophy, society reflection, and technology
 
 > This blog now renders content from markdown files, so writing can stay simple and fast.

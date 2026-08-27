@@ -53,7 +53,7 @@ export async function PUT(request: Request, { params }: RouteProps) {
     const updates = await request.json();
 
     await connectDB();
-    const post = await Post.findOneAndUpdate({ slug }, updates, { new: true }).lean();
+    const post = await Post.findOneAndUpdate({ slug }, updates, { returnDocument: 'after' }).lean();
 
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });

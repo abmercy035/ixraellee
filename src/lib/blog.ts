@@ -155,7 +155,7 @@ export async function getPostBySlug(slug: string): Promise<PostData> {
     const dbPost = await Post.findOneAndUpdate(
       { slug },
       { $inc: { views: 1 } },
-      { new: true }
+      { returnDocument: 'after' }
     ).lean();
 
     if (!dbPost) {

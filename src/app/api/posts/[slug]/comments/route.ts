@@ -48,7 +48,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     await Subscriber.findOneAndUpdate(
       { email: authorEmail },
       { email: authorEmail, name: authorName, status: "active" },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     // 3. Set a 1-year commenter session cookie (365 days = 31,536,000 seconds)

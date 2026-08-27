@@ -49,7 +49,7 @@ async function seed() {
       date: String(data.date || new Date().toISOString().split("T")[0]),
     };
 
-    await Post.findOneAndUpdate({ slug }, postDoc, { upsert: true, new: true });
+    await Post.findOneAndUpdate({ slug }, postDoc, { returnDocument: 'after' });
     console.log(`✓ Seeded post: ${slug}`);
   }
 
