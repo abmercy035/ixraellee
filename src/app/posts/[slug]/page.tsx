@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getAllPosts, getPostBySlug } from "../../../lib/blog";
 import { ChevronRight, ArrowRight, Sparkles, Smartphone } from "lucide-react";
 import { CommentsSection } from "../../../components/comments-section";
+import { AdBanner } from "../../../components/ad-banner";
 
 export const revalidate = 0;
 export const dynamicParams = true;
@@ -131,24 +132,8 @@ export default async function PostPage({ params }: PostPageProps) {
             {/* Article First Half Content */}
             <div className="markdown text-base leading-8 text-slate-300" dangerouslySetInnerHTML={{ __html: firstHalfHtml }} />
 
-            {/* IN-BETWEEN AD BANNER */}
-            <div className="my-10 overflow-hidden border border-blue-500/20 bg-linear-to-r from-blue-950/80 via-slate-900 to-slate-950 p-8 shadow-xl relative">
-              <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                <div className="space-y-2 max-w-lg">
-                  <h3 className="font-serif text-xl font-bold text-white">Experience Ixraellee Journal On The Go</h3>
-                  <p className="text-xs leading-5 text-slate-300">
-                    Get instant notifications on new essays, offline reading mode, and exclusive audio commentaries.
-                  </p>
-                </div>
-                <Link
-                  href="/"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-xs font-bold text-white transition hover:bg-blue-500 shadow-md shrink-0 cursor-pointer"
-                >
-                  Download Free App <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-              <div className="absolute right-0 top-0 h-full w-1/3 bg-[url('/images/app-banner.jpg')] bg-cover opacity-10 blur-sm pointer-events-none" />
-            </div>
+            {/* DYNAMIC IN-BETWEEN AD BANNER */}
+            <AdBanner page="article" section="mid_article" />
 
             {/* Article Second Half Content */}
             {secondHalfHtml ? (

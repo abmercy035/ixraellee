@@ -14,6 +14,7 @@ import { MobileNav } from "../components/mobile-nav";
 import { DesktopDropdown } from "../components/desktop-dropdown";
 import { HeroSection } from "../components/hero-section";
 import { PostCardMeta } from "../components/post-card-meta";
+import { AdBanner } from "../components/ad-banner";
 import { Search } from "lucide-react";
 
 const navItems = [
@@ -160,6 +161,11 @@ export default async function Home() {
             </div>
           </section>
         )}
+
+        {/* Home Page Sponsored Ad Placement */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <AdBanner page="home" section="hero_banner" />
+        </div>
 
         {/* SECTION 3: Editor's Choice + Worth Reading aside */}
         {latestPosts.length > 0 && (

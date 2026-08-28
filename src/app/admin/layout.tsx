@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Home, FileText, Users, Send, ExternalLink, Menu, X } from "lucide-react";
+import { Home, FileText, Users, Send, Megaphone, ExternalLink, Menu, X } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -17,6 +17,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const navItems = [
     { label: "Overview", href: "/admin", icon: Home },
     { label: "Stories", href: "/admin/posts", icon: FileText },
+    { label: "Ads Manager", href: "/admin/ads", icon: Megaphone },
     { label: "Subscribers", href: "/admin/subscribers", icon: Users },
     { label: "Broadcast", href: "/admin/broadcast", icon: Send },
   ];

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getAllPosts, PostMetadata } from "../../../lib/blog";
+import { AdBanner } from "../../../components/ad-banner";
 
 export const revalidate = 0;
 
@@ -45,6 +46,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <h1 className="mt-2 font-serif text-4xl font-black capitalize text-white sm:text-5xl">{decoded}</h1>
           <p className="mt-3 text-sm text-white/60">{posts.length} {posts.length === 1 ? "story" : "stories"} published</p>
         </div>
+
+        <AdBanner page="category" section="category_top" />
 
         {posts.length > 0 ? (
           <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { CategorySelectModal } from "../../../components/category-select-modal";
+import { CustomToast, ToastMessage } from "../../../components/custom-toast";
 import { Plus, Home, ChevronRight, Star, Eye, Trash2 } from "lucide-react";
 import type { PostMetadata } from "../../../lib/blog";
 
@@ -16,6 +17,7 @@ export default function SlothUIPostsManagerPage() {
   const [loading, setLoading] = useState(true);
   const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterStatus>("all");
+  const [toast, setToast] = useState<ToastMessage | null>(null);
 
   function loadPosts() {
     setLoading(true);
@@ -37,11 +39,12 @@ export default function SlothUIPostsManagerPage() {
       const res = await fetch(`/api/posts/${slug}`, { method: "DELETE" });
       if (res.ok) {
         setPosts((prev) => prev.filter((p) => p.slug !== slug));
+        setToast({ message: "Story deleted successfully.", type: "success" });
       } else {
-        alert("Failed to delete post.");
+        setToast({ message: "Failed to delete post.", type: "error" });
       }
     } catch {
-      alert("Error deleting post.");
+      setToast({ message: "Error deleting post.", type: "error" });
     } finally {
       setDeletingSlug(null);
     }
@@ -53,6 +56,7 @@ export default function SlothUIPostsManagerPage() {
 
   return (
     <div className="flex-1 p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 bg-[#f8fafc]">
+      <CustomToast toast={toast} onClose={() => setToast(null)} />
       <CategorySelectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
       {/* Top Action Header */}

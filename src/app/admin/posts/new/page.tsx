@@ -3,6 +3,7 @@
 import { useState, useRef, FormEvent, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { CustomToast, ToastMessage } from "../../../../components/custom-toast";
 import {
   Eye,
   Check,
@@ -34,13 +35,12 @@ const CATEGORIES = [
   "Professional",
   "Zion's Sake",
   "Digitize Africa",
-  "Not Rocket Science new",
+  "Not Rocket Science",
   "Formalize Pidgin",
   "Citizens Participation Support",
   "Philosophy",
   "Society",
   "Technology",
-  "Friends of Ixrael"
 ];
 
 function EditorContent() {
@@ -66,6 +66,7 @@ function EditorContent() {
   const [loadingPost, setLoadingPost] = useState(isEditing);
   const [showMobileSettings, setShowMobileSettings] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [toast, setToast] = useState<ToastMessage | null>(null);
 
   function renderSimpleMarkdown(md: string) {
     if (!md) return "<p class='text-slate-500 italic'>No content written yet.</p>";
@@ -172,11 +173,12 @@ function EditorContent() {
       const data = await res.json();
       if (res.ok && data.url) {
         setBanner(data.url);
+        setToast({ message: "Image uploaded successfully!", type: "success" });
       } else {
-        alert(data.error || "Image upload failed");
+        setToast({ message: data.error || "Image upload failed", type: "error" });
       }
     } catch {
-      alert("Error uploading image to Cloudinary");
+      setToast({ message: "Error uploading image to Cloudinary", type: "error" });
     } finally {
       setIsUploading(false);
     }
@@ -237,6 +239,7 @@ function EditorContent() {
 
   return (
     <div className="flex flex-1 flex-col min-h-screen bg-[#f8fafc]">
+      <CustomToast toast={toast} onClose={() => setToast(null)} />
       {/* Top SlothUI Action Bar Header */}
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 px-4 sm:px-8 py-3 sm:py-4 backdrop-blur flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
