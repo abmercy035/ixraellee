@@ -87,6 +87,14 @@ function EditorContent() {
   const [fontSize, setFontSize] = useState("16");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Auto-resize textarea height to eliminate nested scrollbars
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.max(450, textareaRef.current.scrollHeight)}px`;
+    }
+  }, [content]);
+
   // Load existing post data when editing
   useEffect(() => {
     if (!editSlug) return;
@@ -295,8 +303,8 @@ function EditorContent() {
 
       {/* Main Workspace — flex column on mobile, flex row on large screens */}
       <div className="flex flex-col lg:flex-row flex-1 min-h-0">
-        {/* Editor Canvas */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 flex flex-col items-center">
+        {/* Editor Canvas — scrollable writing pane */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 flex flex-col items-center min-w-0">
           {message ? (
             <div className={`mb-6 w-full max-w-4xl rounded-2xl border p-4 text-xs font-bold ${messageType === "success" ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-rose-50 border-rose-200 text-rose-800"}`}>
               {message}
@@ -304,7 +312,7 @@ function EditorContent() {
           ) : null}
 
           {/* Horizontally Scrollable Formatting Toolbar Ribbon */}
-          <div className="mb-6 w-full max-w-4xl rounded-2xl border border-slate-200 bg-white p-2 sm:p-2.5 shadow-sm flex items-center gap-2 text-xs overflow-x-auto whitespace-nowrap max-w-full scrollbar-none">
+          <div className="mb-6 w-full max-w-4xl rounded-2xl border border-slate-200 bg-white p-2 sm:p-2.5 shadow-sm flex items-center gap-2 text-xs overflow-x-auto whitespace-nowrap max-w-full scrollbar-none shrink-0">
             {/* Header Type */}
             <div className="flex items-center gap-2 border-r border-slate-200 pr-3 shrink-0">
               <div className="flex items-center gap-1">
@@ -380,8 +388,8 @@ function EditorContent() {
             </div>
           </div>
 
-          {/* Canvas Card */}
-          <div className="w-full max-w-4xl rounded-3xl border border-slate-200 bg-white p-4 sm:p-10 md:p-14 shadow-sm min-h-[500px] sm:min-h-[650px] space-y-6 sm:space-y-8 min-w-0 box-border overflow-hidden">
+          {/* Writing Canvas Paper Card */}
+          <div className="w-full max-w-4xl rounded-3xl border border-slate-200 bg-white p-5 sm:p-10 md:p-14 shadow-sm space-y-6 sm:space-y-8 min-w-0 box-border">
             {/* Title Input */}
             <div className="min-w-0 w-full max-w-full">
               <input
@@ -405,15 +413,15 @@ function EditorContent() {
             ) : null}
 
             {/* Document Textarea */}
-            <div className="space-y-4 w-full max-w-full overflow-hidden box-border">
+            <div className="space-y-4 w-full max-w-full">
               <textarea
                 ref={textareaRef}
-                rows={14}
+                rows={16}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Write your story content here in Markdown..."
                 style={{ fontSize: `${fontSize}px` }}
-                className="w-full max-w-full box-border font-serif leading-8 text-slate-800 outline-none bg-transparent resize-y p-2 border border-transparent focus:border-slate-200 rounded-xl"
+                className="w-full font-serif leading-8 text-slate-800 outline-none bg-transparent resize-y p-3 border border-slate-200 rounded-xl focus:border-slate-400 focus:bg-white transition"
               />
             </div>
           </div>

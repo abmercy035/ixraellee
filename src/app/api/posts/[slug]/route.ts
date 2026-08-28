@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { connectDB } from "../../../../lib/db";
 import { Post } from "../../../../models/Post";
 import cloudinary from "../../../../lib/cloudinary";
@@ -59,6 +60,18 @@ export async function PUT(request: Request, { params }: RouteProps) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
+    try {
+      revalidatePath("/");
+      revalidatePath("/admin/posts");
+      revalidatePath("/thoughts");
+      revalidatePath("/works");
+      revalidatePath("/life");
+      revalidatePath(`/posts/${slug}`);
+      if (post.category) revalidatePath(`/categories/${post.category}`);
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
+    }
+
     return NextResponse.json(post);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Internal server error";
@@ -88,7 +101,20 @@ export async function DELETE(_request: Request, { params }: RouteProps) {
       }
     }
 
+    const postCategory = post.category;
     await Post.deleteOne({ _id: post._id });
+
+    try {
+      revalidatePath("/");
+      revalidatePath("/admin/posts");
+      revalidatePath("/thoughts");
+      revalidatePath("/works");
+      revalidatePath("/life");
+      revalidatePath(`/posts/${slug}`);
+      if (postCategory) revalidatePath(`/categories/${postCategory}`);
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
+    }
 
     return NextResponse.json({ message: "Post and attached image deleted successfully" });
   } catch (error: unknown) {

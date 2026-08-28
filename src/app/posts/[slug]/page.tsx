@@ -5,6 +5,9 @@ import { getAllPosts, getPostBySlug } from "../../../lib/blog";
 import { ChevronRight, ArrowRight, Sparkles, Smartphone } from "lucide-react";
 import { CommentsSection } from "../../../components/comments-section";
 
+export const revalidate = 0;
+export const dynamicParams = true;
+
 type PostPageProps = {
   params: Promise<{ slug: string }>;
 };
@@ -49,7 +52,7 @@ export default async function PostPage({ params }: PostPageProps) {
               Categories
             </Link>
             <Link href="/" className="flex items-center gap-1 text-xs font-bold text-blue-400 hover:text-blue-300 transition">
-              Back to Home
+              Back
             </Link>
           </div>
         </div>

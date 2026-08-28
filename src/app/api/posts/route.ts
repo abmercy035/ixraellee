@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { connectDB } from "../../../lib/db";
 import { Post } from "../../../models/Post";
 
@@ -49,6 +50,19 @@ export async function POST(request: Request) {
       },
       { upsert: true, returnDocument: 'after' }
     );
+
+    // Instant Cache Revalidation
+    try {
+      revalidatePath("/");
+      revalidatePath("/admin/posts");
+      revalidatePath("/thoughts");
+      revalidatePath("/works");
+      revalidatePath("/life");
+      revalidatePath(`/posts/${slug}`);
+      revalidatePath(`/categories/${category}`);
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
+    }
 
     return NextResponse.json(post, { status: 200 });
   } catch (error: unknown) {
