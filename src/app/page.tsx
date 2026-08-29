@@ -218,6 +218,7 @@ export default async function Home() {
                     </Link>
                   ))}
                 </div>
+                <AdBanner page="home" section="sidebar" />
               </div>
             </div>
           </section>
@@ -314,7 +315,6 @@ export default async function Home() {
 
       </main>
 
-      {/* ── Footer ──────────────────────────────────────────────── */}
       <footer className="border-t border-white/15 bg-black">
         <section className="mx-auto flex max-w-7xl flex-col gap-6 border-b border-white/15 px-5 py-10 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
           <h2 className="max-w-sm font-serif text-2xl font-bold leading-tight">Stay informed!</h2>

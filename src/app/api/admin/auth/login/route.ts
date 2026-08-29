@@ -14,9 +14,9 @@ export async function POST(request: Request) {
     await connectDB();
 
     const inputUser = username.trim().toLowerCase();
-    const envAdminEmail = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
-    const envAdminUser = (process.env.ADMIN_USERNAME || "").trim().toLowerCase();
-    const envAdminPass = process.env.ADMIN_PASSWORD || "";
+    const envAdminEmail = process.env.ADMIN_EMAIL!.trim().toLowerCase();
+    const envAdminUser = process.env.ADMIN_USERNAME!.trim().toLowerCase();
+    const envAdminPass = process.env.ADMIN_PASSWORD!;
 
     // Check if input matches .env master admin credentials
     const matchesEnvIdentifier =

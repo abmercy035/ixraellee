@@ -25,11 +25,14 @@ export function AdBanner({ page, section, className = "" }: AdBannerProps) {
 
   useEffect(() => {
     let isMounted = true;
-    fetch(`/api/admin/ads?page=${page}&section=${section}&active=true`)
+    fetch(`/api/ads?page=${page}&section=${section}&active=true`)
       .then((res) => res.json())
       .then((data) => {
         if (isMounted && Array.isArray(data) && data.length > 0) {
           setAdsList(data);
+          if (section === "sidebar" && data.length > 1) {
+            setCurrentIndex(Math.floor(Math.random() * data.length));
+          }
         }
       })
       .catch(() => {});
@@ -39,14 +42,14 @@ export function AdBanner({ page, section, className = "" }: AdBannerProps) {
     };
   }, [page, section]);
 
-  // Auto-rotate ads every 6 seconds if multiple ads exist
+  // Auto-rotate ads every 6 seconds if multiple ads exist (carousel sections only)
   useEffect(() => {
-    if (adsList.length <= 1) return;
+    if (section === "sidebar" || section === "header" || adsList.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % adsList.length);
     }, 6000);
     return () => clearInterval(interval);
-  }, [adsList.length]);
+  }, [adsList.length, section]);
 
   function handleNext() {
     if (adsList.length <= 1) return;
@@ -60,6 +63,58 @@ export function AdBanner({ page, section, className = "" }: AdBannerProps) {
 
   if (adsList.length === 0) {
     return null;
+  }
+
+  // Sidebar layout: single randomly picked ad without carousel controls
+  if (section === "sidebar") {
+    const ad = adsList[currentIndex] || adsList[0];
+    const hasTitle = Boolean(ad.title && ad.title.trim().length > 0);
+    const hasDesc = Boolean(ad.description && ad.description.trim().length > 0);
+    const hasBtn = Boolean(ad.buttonText && ad.buttonText.trim().length > 0);
+    const hasTextOverlay = hasTitle || hasDesc || hasBtn;
+    const adLink = ad._id ? `/ad/${ad._id}` : (ad.targetUrl || "#");
+
+    return (
+      <a
+        href={adLink}
+        target="_blank"
+        rel="noreferrer"
+        className={`group relative block min-h-[180px] w-full overflow-hidden rounded-sm cursor-pointer transition-all duration-300 ${className}`}
+      >
+        <div className="absolute inset-0 h-full w-full overflow-hidden">
+          <img
+            src={ad.imageUrl}
+            alt={ad.altText || ad.title || "Sponsored Advertisement"}
+            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+          {hasTextOverlay && (
+            <div className="absolute inset-0 bg-linear-to-t from-slate-950/85 via-slate-950/50 to-transparent" />
+          )}
+        </div>
+
+        {hasTextOverlay ? (
+          <div className="relative z-10 flex h-full min-h-[180px] flex-col justify-end p-5 space-y-2">
+            {hasTitle && (
+              <h3 className="font-serif text-base sm:text-lg font-bold text-white leading-snug drop-shadow-md">
+                {ad.title}
+              </h3>
+            )}
+            {hasDesc && (
+              <p className="text-xs text-slate-200 line-clamp-2 font-medium drop-shadow-sm">
+                {ad.description}
+              </p>
+            )}
+            {hasBtn && (
+              <div className="pt-1">
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-white px-3 py-1 text-xs font-extrabold text-slate-950 shadow-md">
+                  {ad.buttonText} <ExternalLink className="h-3 w-3 text-slate-900" />
+                </span>
+              </div>
+            )}
+          </div>
+        ) : null}
+      </a>
+    );
   }
 
   const currentAd = adsList[currentIndex];
@@ -76,7 +131,6 @@ export function AdBanner({ page, section, className = "" }: AdBannerProps) {
     hero_banner:  "min-h-[380px] sm:min-h-[280px]", // home — tall
     mid_article:  "min-h-[220px] sm:min-h-[220px]", // in-article — compact
     category_top: "min-h-[220px] sm:min-h-[220px]", // before Keep Reading — compact
-    sidebar:      "min-h-[200px] sm:min-h-[200px]", // sidebar — smallest
   };
   const hClass = heightClass[section];
 

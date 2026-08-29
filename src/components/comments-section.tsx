@@ -111,7 +111,7 @@ export function CommentsSection({ postSlug }: CommentsSectionProps) {
       </div>
 
       {/* Comment Form */}
-      <form onSubmit={handleSubmit} className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="border border-white/10 bg-white/5 p-6 space-y-4">
         {hasSession ? (
           <div className="flex items-center justify-between text-xs text-slate-400 border-b border-white/10 pb-3">
             <span className="flex items-center gap-1.5 font-semibold text-white">

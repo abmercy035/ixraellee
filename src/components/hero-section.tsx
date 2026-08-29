@@ -241,11 +241,11 @@ export function HeroSection({ posts }: HeroSectionProps) {
         </div>
 
         <div className="relative order-1 max-w-2xl lg:order-1">
-          <p className="hero-kicker text-xs font-bold uppercase tracking-[0.38em] text-blue-700">A journal by Ixraellee</p>
+          <p className="hero-kicker text-xs font-bold uppercase tracking-[0.38em] text-blue-700">A  by Ixraellee</p>
           <h1 className="mt-5 font-serif text-5xl font-black leading-[0.98] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">Welcome to Ixraellee Journal</h1>
           <p className="mt-7 max-w-xl text-xl leading-8 text-slate-700 sm:text-2xl">Stories from the life we live, the work we build, and the ideas that keep moving.</p>
-          <blockquote className="mt-8 max-w-lg border-l-2 border-blue-600 pl-5 text-base italic leading-7 text-slate-600 sm:text-lg">“A place for paying attention: to people, to places, and to what becomes possible.”</blockquote>
-          <div className="mt-10 flex items-center gap-4 text-xs uppercase tracking-[0.2em] text-slate-500"><span className="h-px w-12 bg-blue-600/70" /> Personal essays · field notes · reflections</div>
+          {/* <blockquote className="mt-8 max-w-lg border-l-2 border-blue-600 pl-5 text-base italic leading-7 text-slate-600 sm:text-lg">“A place for paying attention: to people, to places, and to what becomes possible.”</blockquote> */}
+          {/* <div className="mt-10 flex items-center gap-4 text-xs uppercase tracking-[0.2em] text-slate-500"><span className="h-px w-12 bg-blue-600/70" /> Personal essays · field notes · reflections</div> */}
         </div>
       </div>
     </section>
