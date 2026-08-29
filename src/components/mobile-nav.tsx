@@ -61,7 +61,7 @@ export function MobileNav({ items }: MobileNavProps) {
         >
           <div className="flex items-center justify-between border-b border-white/15 px-5 py-5">
             <Link href="/" onClick={() => setOpen(false)} className="font-serif text-xl font-black text-white">
-              Ixraellee Journal
+              Ixraellee
             </Link>
             <button
               type="button"
@@ -81,7 +81,7 @@ export function MobileNav({ items }: MobileNavProps) {
               "children" in item ? (
                 <details key={item.label} className="group rounded-2xl border border-white/15">
                   <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-4 text-base font-semibold text-white/85">
-                    {item.label}<span className="text-blue-300 transition group-open:rotate-180">⌄</span>
+                    {item.label}
                   </summary>
                   <div className="border-t border-white/10 px-3 py-2">
                     {item.children?.map((child) => (

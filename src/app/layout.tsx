@@ -24,10 +24,18 @@ export const metadata: Metadata = {
   },
 };
 
+import { Suspense } from "react";
+import { AnalyticsTracker } from "../components/analytics-tracker";
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <Suspense fallback={null}>
+          <AnalyticsTracker />
+        </Suspense>
+        {children}
+      </body>
     </html>
   );
 }

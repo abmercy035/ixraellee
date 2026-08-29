@@ -36,26 +36,27 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { title, description, page, section, imageUrl, targetUrl, buttonText, altText, active } = body;
 
-    if (!title || !imageUrl) {
-      return NextResponse.json({ error: "Title and Image URL are required." }, { status: 400 });
+    if (!imageUrl || !targetUrl) {
+      return NextResponse.json({ error: "Image URL and Destination Link (URL) are required." }, { status: 400 });
     }
 
     await connectDB();
 
     const newAd = await Ad.create({
-      title,
-      description: description || "",
-      page: page || "all",
-      section: section || "mid_article",
-      imageUrl,
-      targetUrl: targetUrl || "#",
-      buttonText: buttonText || "",
-      altText: altText || title,
+      title: title?.trim() || "",
+      description: description?.trim() || "",
+      page: page || "home",
+      section: section || "header",
+      imageUrl: imageUrl.trim(),
+      targetUrl: targetUrl.trim(),
+      buttonText: buttonText?.trim() || "",
+      altText: altText?.trim() || title?.trim() || "Advertisement",
       active: active !== false,
     });
 
     return NextResponse.json(newAd, { status: 201 });
   } catch (error: unknown) {
+    console.error("Ad creation error:", error);
     const message = error instanceof Error ? error.message : "Internal server error";
     return NextResponse.json({ error: message }, { status: 500 });
   }

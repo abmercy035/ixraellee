@@ -17,6 +17,7 @@ import { PostCardMeta } from "../components/post-card-meta";
 import { AdBanner } from "../components/ad-banner";
 import { SearchTrigger } from "../components/search-trigger";
 import { FeaturedCarousel } from "../components/featured-carousel";
+import { SubscribeForm } from "../components/subscribe-form";
 import { Search } from "lucide-react";
 
 const navItems = [
@@ -74,16 +75,25 @@ export default async function Home() {
     <div className="min-h-screen bg-[#050505] text-white">
       {/* ── Header ─────────────────────────────────────────────── */}
       <header className="relative z-30 bg-[#050505]">
-        <div className="mx-auto flex h-24 max-w-7xl items-center justify-between border-b border-white/15 px-5 sm:px-8">
-          <div className="flex items-center gap-5">
-            <MobileNav items={navItems} />
+        <div className="mx-auto flex h-24 max-w-7xl items-center justify-between border-b border-white/15 px-5 sm:px-8 gap-6">
+          {/* Left: Mobile Nav Toggle + Logo & Tagline */}
+          <div className="flex items-center gap-4 shrink-0">
+            <div className="lg:hidden">
+              <MobileNav items={navItems} />
+            </div>
+            <Link href="/" className="text-left group">
+              <span className="block font-serif text-3xl font-black tracking-tight sm:text-4xl text-white group-hover:text-blue-300 transition">
+                Ixraellee
+              </span>
+              <span className="mt-0.5 block text-[9px] sm:text-[10px] uppercase tracking-[0.35em] text-blue-300">
+                IGBINOVIA IDEMUDIA ISRAEL
+              </span>
+            </Link>
           </div>
-          <Link href="/" className="text-center">
-            <span className="block font-serif text-3xl font-black tracking-tight sm:text-4xl">Ixraellee</span>
-            <span className="mt-1 block text-[10px] uppercase tracking-[0.35em] text-blue-300">IGBINOVIA IDEMUDIA ISRAEL</span>
-          </Link>
-          <div className="flex items-center gap-4 text-xs">
-            <Link href="#subscribe" className="bg-white px-3 py-2 font-semibold text-black transition hover:bg-blue-200">Subscribe Now</Link>
+
+          {/* Right: Header Ad Banner (half width, hidden on mobile) */}
+          <div className="hidden md:flex flex-1 max-w-md lg:max-w-xl justify-end">
+            <AdBanner page="home" section="header" className="my-0 w-full" />
           </div>
         </div>
 
@@ -133,10 +143,7 @@ export default async function Home() {
                           fill
                           sizes="(max-width: 1024px) 50vw, 280px"
                           className="object-cover transition duration-500 group-hover:scale-105"
-                        />
-                        <span className="absolute bottom-2 left-2 bg-slate-900/80 px-2 py-0.5 text-[9px] font-black uppercase text-white tracking-wider">
-                          {post.category}
-                        </span>
+                        /> 
                       </div>
                       <div>
                         <h3 className="text-sm font-bold leading-5 text-slate-900 group-hover:text-blue-700 line-clamp-2">{post.title}</h3>
@@ -178,9 +185,6 @@ export default async function Home() {
                           sizes="220px"
                           className="object-cover transition duration-500 group-hover:scale-105"
                         />
-                        <span className="absolute bottom-2 left-2 bg-slate-900/80 px-2 py-0.5 text-[9px] font-black uppercase text-white tracking-wider">
-                          {post.category}
-                        </span>
                       </div>
                       <div>
                         <h3 className="text-sm font-bold leading-5 text-blue-700 group-hover:underline line-clamp-2">{post.title}</h3>
@@ -270,7 +274,7 @@ export default async function Home() {
 
                 {/* Remaining Categories as medium cards */}
                 {remainingCategories.length > 0 && (
-                  <div className="border-t border-slate-200 pt-8 grid grid-cols-4">
+                  <div className="border-t border-slate-200 pt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
                     {remainingCategories.map(({ cat, topPost }) => (
                       <Link
                         key={cat}
@@ -290,10 +294,10 @@ export default async function Home() {
 
                         {/* Details — right side */}
                         <div className="flex-1 min-w-0 space-y-1">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-[#0088CC]">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-blue-500">
                             {cat}
                           </span>
-                          <h3 className="font-serif text-sm sm:text-base font-bold leading-snug text-slate-900 group-hover:text-[#0088CC] transition line-clamp-2">
+                          <h3 className="font-serif text-sm sm:text-base font-bold leading-snug text-slate-900 group-hover:text-blue-500 transition line-clamp-2">
                             {topPost.title}
                           </h3>
                           <p className="text-[11px] text-slate-400 line-clamp-1">{topPost.excerpt}</p>
@@ -314,11 +318,7 @@ export default async function Home() {
       <footer className="border-t border-white/15 bg-black">
         <section className="mx-auto flex max-w-7xl flex-col gap-6 border-b border-white/15 px-5 py-10 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
           <h2 className="max-w-sm font-serif text-2xl font-bold leading-tight">Stay informed!</h2>
-          <form className="flex w-full max-w-xl" action="/api/subscribe" method="POST">
-            <label className="sr-only" htmlFor="footer-email">Email address</label>
-            <input id="footer-email" name="email" type="email" required placeholder="Your email" className="min-w-0 rounded-l-sm flex-1 bg-white px-4 py-3 text-sm text-slate-950 outline-none placeholder:text-slate-400" />
-            <button type="submit" className="bg-blue-600 rounded-r-sm px-5 py-3 text-xs font-bold text-white transition hover:bg-blue-500 cursor-pointer">Subscribe</button>
-          </form>
+          <SubscribeForm variant="footer" />
         </section>
 
         <section className="mx-auto grid max-w-7xl gap-10 border-b border-white/10 px-5 py-10 text-sm lg:grid-cols-[1fr_2.5fr] sm:px-8">

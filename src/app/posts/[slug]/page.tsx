@@ -5,6 +5,7 @@ import { getAllPosts, getPostBySlug } from "../../../lib/blog";
 import { ChevronRight, ArrowRight, Sparkles, Smartphone } from "lucide-react";
 import { CommentsSection } from "../../../components/comments-section";
 import { AdBanner } from "../../../components/ad-banner";
+import { SubscribeForm } from "../../../components/subscribe-form";
 
 export const revalidate = 0;
 export const dynamicParams = true;
@@ -200,21 +201,9 @@ export default async function PostPage({ params }: PostPageProps) {
             </p>
           </div>
 
-          <form className="mx-auto flex max-w-md gap-2" action="/api/subscribe" method="POST">
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="Enter your email address"
-              className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-xs text-white placeholder-slate-500 outline-none focus:border-blue-400"
-            />
-            <button
-              type="submit"
-              className="rounded-xl bg-blue-600 px-6 py-3 text-xs font-bold text-white hover:bg-blue-500 transition shadow-md shrink-0 cursor-pointer"
-            >
-              Sign Up
-            </button>
-          </form>
+          <div className="mx-auto max-w-md">
+            <SubscribeForm variant="card" />
+          </div>
 
           <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-4">
             <p>© {new Date().getFullYear()} Ixraellee Journal. All rights reserved.</p>

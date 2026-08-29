@@ -5,19 +5,16 @@ import Link from "next/link";
 import {
   Megaphone,
   Plus,
-  Home,
-  ChevronRight,
-  ExternalLink,
   Trash2,
   Edit2,
-  CheckCircle2,
-  XCircle,
+  ExternalLink,
   Upload,
-  ImageIcon,
-  Eye,
+  CheckCircle2,
   MousePointerClick,
-  SlidersHorizontal,
+  Home,
+  ChevronRight,
   X,
+  Layout,
 } from "lucide-react";
 import { CustomToast, ToastMessage } from "../../../components/custom-toast";
 
@@ -26,7 +23,7 @@ type AdItem = {
   title: string;
   description?: string;
   page: "home" | "article" | "category" | "all";
-  section: "mid_article" | "sidebar" | "hero_banner" | "category_top";
+  section: "mid_article" | "sidebar" | "hero_banner" | "category_top" | "header";
   imageUrl: string;
   targetUrl: string;
   buttonText?: string;
@@ -36,19 +33,50 @@ type AdItem = {
   createdAt?: string;
 };
 
+const SECTION_META: Record<
+  AdItem["section"],
+  { label: string; color: string; hint: string }
+> = {
+  header: {
+    label: "Header Top Banner",
+    color: "bg-purple-50 text-purple-700 border-purple-200",
+    hint: "Sleek compact banner in the top header next to the logo (half width, desktop only).",
+  },
+  hero_banner: {
+    label: "Hero Banner",
+    color: "bg-blue-50 text-blue-700 border-blue-200",
+    hint: "Full-bleed high-impact banner shown on the home page.",
+  },
+  mid_article: {
+    label: "Mid-Article",
+    color: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    hint: "Compact banner between article paragraphs.",
+  },
+  category_top: {
+    label: "Category / Before Keep Reading",
+    color: "bg-amber-50 text-amber-700 border-amber-200",
+    hint: "Placed before the Keep Reading section and category archives.",
+  },
+  sidebar: {
+    label: "Sidebar Widget",
+    color: "bg-slate-100 text-slate-700 border-slate-200",
+    hint: "Compact sidebar banner slot.",
+  },
+};
+
 export default function SlothUIAdsManagerPage() {
   const [ads, setAds] = useState<AdItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<ToastMessage | null>(null);
-  const [filterPage, setFilterPage] = useState<string>("all");
+  const [filterSection, setFilterSection] = useState<string>("all");
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAd, setEditingAd] = useState<AdItem | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [page, setPage] = useState<"home" | "article" | "category" | "all">("article");
-  const [section, setSection] = useState<"mid_article" | "sidebar" | "hero_banner" | "category_top">("mid_article");
+  const [page, setPage] = useState<"home" | "article" | "category" | "all">("home");
+  const [section, setSection] = useState<AdItem["section"]>("header");
   const [imageUrl, setImageUrl] = useState("");
   const [targetUrl, setTargetUrl] = useState("");
   const [buttonText, setButtonText] = useState("");
@@ -76,8 +104,8 @@ export default function SlothUIAdsManagerPage() {
     setEditingAd(null);
     setTitle("");
     setDescription("");
-    setPage("article");
-    setSection("mid_article");
+    setPage("home");
+    setSection("header");
     setImageUrl("/images/welcome-journal.jpg");
     setTargetUrl("https://");
     setButtonText("");
@@ -91,7 +119,7 @@ export default function SlothUIAdsManagerPage() {
     setTitle(ad.title);
     setDescription(ad.description || "");
     setPage(ad.page);
-    setSection(ad.section);
+    setSection(ad.section || "header");
     setImageUrl(ad.imageUrl);
     setTargetUrl(ad.targetUrl);
     setButtonText(ad.buttonText || "");
@@ -103,23 +131,22 @@ export default function SlothUIAdsManagerPage() {
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
     setIsUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-    if (imageUrl && imageUrl.includes("cloudinary.com")) {
-      formData.append("oldUrl", imageUrl);
-    }
+
     try {
       const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
       const data = await res.json();
       if (res.ok && data.url) {
         setImageUrl(data.url);
-        setToast({ message: "Ad banner uploaded successfully!", type: "success" });
+        setToast({ message: "Image uploaded successfully!", type: "success" });
       } else {
-        setToast({ message: data.error || "Image upload failed.", type: "error" });
+        setToast({ message: data.error || "Upload failed", type: "error" });
       }
     } catch {
-      setToast({ message: "Error uploading banner image.", type: "error" });
+      setToast({ message: "Error uploading image", type: "error" });
     } finally {
       setIsUploading(false);
     }
@@ -127,13 +154,23 @@ export default function SlothUIAdsManagerPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !imageUrl.trim()) {
-      setToast({ message: "Title and Image URL are required.", type: "error" });
+    if (!imageUrl.trim() || !targetUrl.trim()) {
+      setToast({ message: "Banner Image and Destination Link (URL) are required.", type: "error" });
       return;
     }
 
     setIsSubmitting(true);
-    const payload = { title, description, page, section, imageUrl, targetUrl, buttonText, altText, active };
+    const payload = {
+      title: title.trim(),
+      description: description.trim(),
+      page,
+      section,
+      imageUrl: imageUrl.trim(),
+      targetUrl: targetUrl.trim(),
+      buttonText: buttonText.trim(),
+      altText: altText.trim(),
+      active,
+    };
 
     try {
       if (editingAd) {
@@ -162,7 +199,8 @@ export default function SlothUIAdsManagerPage() {
           setToast({ message: "New ad placement created!", type: "success" });
           setIsModalOpen(false);
         } else {
-          setToast({ message: "Failed to create ad placement.", type: "error" });
+          const err = await res.json().catch(() => ({}));
+          setToast({ message: err.error || "Failed to create ad placement.", type: "error" });
         }
       }
     } catch {
@@ -209,7 +247,8 @@ export default function SlothUIAdsManagerPage() {
 
   const activeAdsCount = ads.filter((a) => a.active).length;
   const totalClicksCount = ads.reduce((acc, a) => acc + (a.clicks || 0), 0);
-  const filteredAds = filterPage === "all" ? ads : ads.filter((a) => a.page === filterPage || a.page === "all");
+  const filteredAds =
+    filterSection === "all" ? ads : ads.filter((a) => a.section === filterSection);
 
   return (
     <div className="flex-1 p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 bg-[#f8fafc]">
@@ -227,7 +266,7 @@ export default function SlothUIAdsManagerPage() {
             Ad Placements Studio
           </h1>
           <p className="mt-1 text-xs text-slate-500">
-            Manage sponsored banners, placement positions, and page targeting.
+            Manage sponsored banners, header slots, and page placement targeting.
           </p>
         </div>
 
@@ -266,19 +305,21 @@ export default function SlothUIAdsManagerPage() {
         </div>
       </div>
 
-      {/* Target Page Filter Tabs */}
+      {/* Section Placement Filter Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto whitespace-nowrap scrollbar-none">
         {[
-          { label: "All Target Pages", value: "all" },
-          { label: "Articles (/posts/*)", value: "article" },
-          { label: "Home Page (/)", value: "home" },
-          { label: "Category Pages (/categories/*)", value: "category" },
+          { label: "All Placement Locations", value: "all" },
+          { label: "Header Banner (Half Width)", value: "header" },
+          { label: "Hero Banner (Full Width)", value: "hero_banner" },
+          { label: "Mid-Article", value: "mid_article" },
+          { label: "Category Top / Keep Reading", value: "category_top" },
+          { label: "Sidebar", value: "sidebar" },
         ].map((tab) => (
           <button
             key={tab.value}
-            onClick={() => setFilterPage(tab.value)}
+            onClick={() => setFilterSection(tab.value)}
             className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
-              filterPage === tab.value
+              filterSection === tab.value
                 ? "bg-slate-950 text-white shadow-xs"
                 : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
             }`}
@@ -297,8 +338,8 @@ export default function SlothUIAdsManagerPage() {
       ) : filteredAds.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-12 text-center">
           <Megaphone className="mx-auto h-10 w-10 text-slate-300" />
-          <h3 className="mt-3 font-serif text-base font-bold text-slate-900">No Ad Placements Configured</h3>
-          <p className="mt-1 text-xs text-slate-500">Create your first ad placement to serve custom banners across the journal.</p>
+          <h3 className="mt-3 font-serif text-base font-bold text-slate-900">No Ad Placements in this Location</h3>
+          <p className="mt-1 text-xs text-slate-500">Create an ad placement slot to display custom banners in this location.</p>
           <button
             onClick={openCreateModal}
             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800 cursor-pointer"
@@ -308,134 +349,141 @@ export default function SlothUIAdsManagerPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAds.map((ad) => (
-            <div
-              key={ad._id}
-              className={`flex flex-col justify-between rounded-3xl border bg-white p-5 shadow-xs transition hover:shadow-md ${
-                ad.active ? "border-slate-200" : "border-slate-200 opacity-60 bg-slate-50/50"
-              }`}
-            >
-              <div className="space-y-4">
-                {/* Banner Thumbnail */}
-                <div className="relative h-40 w-full overflow-hidden rounded-2xl bg-slate-100 border border-slate-100">
-                  <img src={ad.imageUrl} alt={ad.title} className="h-full w-full object-cover" />
-                  <div className="absolute top-3 right-3 flex items-center gap-1.5">
-                    <span
-                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold border backdrop-blur-md ${
-                        ad.active
-                          ? "bg-emerald-500/90 text-white border-emerald-400"
-                          : "bg-slate-950/70 text-slate-300 border-white/10"
-                      }`}
+          {filteredAds.map((ad) => {
+            const meta = SECTION_META[ad.section] || SECTION_META.header;
+            return (
+              <div
+                key={ad._id}
+                className={`flex flex-col justify-between rounded-3xl border bg-white p-5 shadow-xs transition hover:shadow-md ${
+                  ad.active ? "border-slate-200" : "border-slate-200 opacity-60 bg-slate-50/50"
+                }`}
+              >
+                <div className="space-y-4">
+                  {/* Banner Thumbnail */}
+                  <div className="relative h-40 w-full overflow-hidden rounded-2xl bg-slate-100 border border-slate-100">
+                    <img src={ad.imageUrl} alt={ad.title} className="h-full w-full object-cover" />
+                    <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold border backdrop-blur-md ${
+                          ad.active
+                            ? "bg-emerald-500/90 text-white border-emerald-400"
+                            : "bg-slate-950/70 text-slate-300 border-white/10"
+                        }`}
+                      >
+                        {ad.active ? "Active" : "Disabled"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Ad Details */}
+                  <div>
+                    <h3 className="font-serif text-base font-bold text-slate-950 line-clamp-1">
+                      {ad.title && ad.title.trim() ? (
+                        ad.title
+                      ) : (
+                        <span className="text-slate-400 italic font-normal text-xs">Visual Banner (No Text Overlay)</span>
+                      )}
+                    </h3>
+                    {ad.description && ad.description.trim() ? (
+                      <p className="mt-1 text-xs text-slate-500 line-clamp-1">{ad.description}</p>
+                    ) : null}
+
+                    <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[10px]">
+                      <span className={`rounded-md px-2 py-0.5 font-bold border ${meta.color}`}>
+                        {meta.label}
+                      </span>
+                      <span className="rounded-md bg-slate-100 px-2 py-0.5 font-bold text-slate-700">
+                        Page: {ad.page}
+                      </span>
+                      <span className="rounded-md bg-amber-50 px-2 py-0.5 font-bold text-amber-700 border border-amber-100">
+                        {ad.clicks || 0} clicks
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Target URL */}
+                  <div className="flex items-center gap-2 rounded-xl bg-slate-50 p-2.5 text-xs text-slate-500">
+                    <ExternalLink className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                    <span className="truncate font-mono text-[11px]">{ad.targetUrl}</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                  <button
+                    onClick={() => toggleActive(ad)}
+                    className={`rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                      ad.active
+                        ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {ad.active ? "Disable Slot" : "Enable Slot"}
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => openEditModal(ad)}
+                      className="rounded-xl border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+                      title="Edit Ad"
                     >
-                      {ad.active ? "Active" : "Disabled"}
-                    </span>
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(ad._id, ad.title)}
+                      className="rounded-xl border border-rose-100 p-2 text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                      title="Delete Ad"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-
-                {/* Ad Details */}
-                <div>
-                  <h3 className="font-serif text-base font-bold text-slate-950 line-clamp-1">{ad.title}</h3>
-                  <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px]">
-                    <span className="rounded-md bg-blue-50 px-2 py-0.5 font-bold text-blue-700 border border-blue-100">
-                      Page: {ad.page}
-                    </span>
-                    <span className="rounded-md bg-slate-100 px-2 py-0.5 font-bold text-slate-700">
-                      Section: {ad.section}
-                    </span>
-                    <span className="rounded-md bg-amber-50 px-2 py-0.5 font-bold text-amber-700 border border-amber-100">
-                      {ad.clicks || 0} clicks
-                    </span>
-                  </div>
-                </div>
-
-                {/* Target URL Link */}
-                <div className="flex items-center gap-2 rounded-xl bg-slate-50 p-2.5 text-xs text-slate-500 border border-slate-100">
-                  <ExternalLink className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                  <a
-                    href={ad.targetUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="truncate text-[11px] font-semibold text-blue-600 hover:underline"
-                  >
-                    {ad.targetUrl}
-                  </a>
-                </div>
               </div>
-
-              {/* Card Footer Actions */}
-              <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-                <button
-                  onClick={() => toggleActive(ad)}
-                  className={`text-xs font-bold transition cursor-pointer ${
-                    ad.active ? "text-slate-600 hover:text-slate-950" : "text-emerald-600 hover:text-emerald-700"
-                  }`}
-                >
-                  {ad.active ? "Pause Ad" : "Activate Ad"}
-                </button>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => openEditModal(ad)}
-                    className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 transition cursor-pointer"
-                    title="Edit Placement"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(ad._id, ad.title)}
-                    className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
-                    title="Delete Placement"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* Create / Edit Ad Placement Modal Overlay */}
+      {/* Create / Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-xl max-h-[90vh] flex flex-col rounded-3xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50 shrink-0">
-              <div className="flex items-center gap-2.5">
-                <Megaphone className="h-5 w-5 text-blue-600" />
-                <h3 className="font-serif text-lg font-bold text-slate-950">
-                  {editingAd ? "Edit Ad Placement" : "New Ad Placement"}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="relative my-8 w-full max-w-xl rounded-3xl bg-white p-6 sm:p-8 shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-slate-950">
+                  {editingAd ? "Edit Ad Placement" : "Create New Ad Placement"}
                 </h3>
+                <p className="text-xs text-slate-500">Configure sponsored banner, location, and destination URL.</p>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="rounded-full p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
+                className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 transition cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Ad Title / Campaign Name</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Ad Headline / Title <span className="text-slate-400 font-normal">(Optional)</span>
+                </label>
                 <input
                   type="text"
-                  required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Bella Hair Spring Collection Promo"
+                  placeholder="Optional (leave empty if your banner image already contains text)"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-semibold text-slate-950 outline-none focus:border-slate-400 focus:bg-white transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Ad Summary / Short Note</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Ad Summary / Short Note (Optional)</label>
                 <textarea
                   rows={2}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Short caption or promo summary shown under the headline..."
+                  placeholder="Short caption or promo summary shown over the banner..."
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-semibold text-slate-950 outline-none focus:border-slate-400 focus:bg-white transition resize-none"
                 />
               </div>
@@ -448,26 +496,35 @@ export default function SlothUIAdsManagerPage() {
                     onChange={(e) => setPage(e.target.value as any)}
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-semibold text-slate-950 outline-none focus:border-slate-400 focus:bg-white transition"
                   >
-                    <option value="article">Articles (/posts/*)</option>
                     <option value="home">Home Page (/)</option>
+                    <option value="article">Articles (/posts/*)</option>
                     <option value="category">Category Pages (/categories/*)</option>
                     <option value="all">All Pages</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Section Placement</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Placement Location</label>
                   <select
                     value={section}
                     onChange={(e) => setSection(e.target.value as any)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-semibold text-slate-950 outline-none focus:border-slate-400 focus:bg-white transition"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-semibold text-slate-950 outline-none focus:border-slate-400 focus:bg-white transition font-bold"
                   >
+                    <option value="header">Header Top Banner (Half Width)</option>
+                    <option value="hero_banner">Hero Banner (Full Width)</option>
                     <option value="mid_article">Mid-Article (In Between Paragraphs)</option>
+                    <option value="category_top">Category / Before Keep Reading</option>
                     <option value="sidebar">Sidebar Widget</option>
-                    <option value="hero_banner">Hero Banner</option>
-                    <option value="category_top">Category Top Banner</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Placement Explanation Note */}
+              <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-[11px] text-slate-600 flex items-start gap-2">
+                <Layout className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Location Note:</strong> {SECTION_META[section]?.hint}
+                </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -489,7 +546,7 @@ export default function SlothUIAdsManagerPage() {
                     type="text"
                     value={buttonText}
                     onChange={(e) => setButtonText(e.target.value)}
-                    placeholder="Optional (e.g. Visit Link, Shop Now)"
+                    placeholder="Optional (e.g. Shop Now, Visit Link)"
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-semibold text-slate-950 outline-none focus:border-slate-400 focus:bg-white transition"
                   />
                 </div>
@@ -522,7 +579,7 @@ export default function SlothUIAdsManagerPage() {
               <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3.5">
                 <div>
                   <h4 className="text-xs font-bold text-slate-900">Active Placement Status</h4>
-                  <p className="text-[10px] text-slate-500">Enable to serve this ad live on selected pages.</p>
+                  <p className="text-[10px] text-slate-500">Enable to serve this ad live in its selected placement.</p>
                 </div>
                 <button
                   type="button"
@@ -539,20 +596,20 @@ export default function SlothUIAdsManagerPage() {
                 </button>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                  className="rounded-xl px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="rounded-xl bg-slate-950 px-5 py-2.5 text-xs font-bold text-white hover:bg-slate-800 transition shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="rounded-xl bg-slate-950 px-5 py-2.5 text-xs font-bold text-white hover:bg-slate-800 transition disabled:opacity-50 cursor-pointer"
                 >
-                  {isSubmitting ? "Saving..." : editingAd ? "Save Changes" : "Create Placement"}
+                  {isSubmitting ? "Saving..." : editingAd ? "Update Ad Slot" : "Create Placement"}
                 </button>
               </div>
             </form>

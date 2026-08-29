@@ -11,10 +11,12 @@ type AdminStats = {
   publishedPosts: number;
   draftPosts: number;
   totalViews: number;
+  uniqueVisitors?: number;
   subscribers: number;
   categories: number;
   featuredPosts: number;
   worthReadingPosts: number;
+  totalComments?: number;
 };
 
 export default function SlothUIDashboardPage() {
@@ -87,10 +89,15 @@ export default function SlothUIDashboardPage() {
               </p>
             </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+            <Link
+              href="/admin/analytics"
+              className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm flex flex-col justify-between hover:border-slate-300 transition group"
+            >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Views</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 group-hover:text-blue-600 transition">
+                    Total Views &amp; Readers
+                  </span>
                   <Eye className="h-4 w-4 text-emerald-500" />
                 </div>
                 <p className="mt-4 font-serif text-3xl sm:text-4xl font-black text-slate-950">
@@ -101,8 +108,11 @@ export default function SlothUIDashboardPage() {
                     : "—"}
                 </p>
               </div>
-              <p className="mt-4 text-[10px] font-semibold text-emerald-600">Cumulative article reads</p>
-            </div>
+              <p className="mt-4 text-[10px] font-semibold text-emerald-600 flex items-center justify-between">
+                <span>{stats?.uniqueVisitors ?? 0} unique visitors</span>
+                <span className="text-slate-400 group-hover:text-blue-600">View analytics →</span>
+              </p>
+            </Link>
 
             <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm flex flex-col justify-between">
               <div>

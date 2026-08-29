@@ -2,12 +2,24 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { Home, FileText, Users, Send, Megaphone, ExternalLink, Menu, X } from "lucide-react";
+import {
+  Home,
+  FileText,
+  Users,
+  Send,
+  Megaphone,
+  BarChart3,
+  ExternalLink,
+  Menu,
+  X,
+  LogOut,
+} from "lucide-react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   if (pathname === "/admin/login") {
@@ -16,11 +28,21 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const navItems = [
     { label: "Overview", href: "/admin", icon: Home },
+    { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
     { label: "Stories", href: "/admin/posts", icon: FileText },
     { label: "Ads Manager", href: "/admin/ads", icon: Megaphone },
     { label: "Subscribers", href: "/admin/subscribers", icon: Users },
     { label: "Broadcast", href: "/admin/broadcast", icon: Send },
   ];
+
+  async function handleLogout() {
+    try {
+      await fetch("/api/admin/auth/logout", { method: "POST" });
+    } finally {
+      router.push("/admin/login");
+      router.refresh();
+    }
+  }
 
   return (
     <div className="flex h-screen flex-col md:flex-row overflow-hidden bg-[#f8fafc] text-slate-900 font-sans antialiased">
@@ -92,7 +114,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   onClick={() => setMobileNavOpen(false)}
                   className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition ${
                     isActive
-                      ? "bg-slate-100 text-slate-950"
+                      ? "bg-slate-100 text-slate-950 font-bold"
                       : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
@@ -104,19 +126,23 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </nav>
         </div>
 
-        {/* Bottom: View Site */}
-        <div className="p-5 border-t border-slate-100">
+        {/* Bottom Actions: View Site & Sign Out */}
+        <div className="p-5 border-t border-slate-100 space-y-1">
           <Link
             href="/"
             onClick={() => setMobileNavOpen(false)}
-            className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition"
+            className="flex items-center gap-2.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition"
           >
             <ExternalLink className="h-4 w-4 text-slate-400" />
             View Site
           </Link>
-          <p className="mt-3 px-3 text-[10px] text-slate-400 leading-5">
-            Ixraellee Journal CMS<br />Connected to MongoDB &amp; Cloudinary
-          </p>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+          >
+            <LogOut className="h-4 w-4 text-rose-500" />
+            Sign Out
+          </button>
         </div>
       </aside>
 

@@ -37,7 +37,7 @@ export function DesktopDropdown({ label, dropdownItems }: DesktopDropdownProps) 
         }}
         className="flex cursor-pointer list-none items-center gap-1 border-b-2 border-transparent py-6 transition group-open:border-blue-400 hover:text-blue-300"
       >
-        {label}<span className="text-[9px] text-blue-300">{open ? "⌃" : "⌄"}</span>
+        {label}
       </summary>
       <div className="absolute left-1/2 top-full z-50 min-w-56 -translate-x-1/2 border border-white/15 bg-[#0b0f18] p-2 shadow-2xl">
         {dropdownItems.map((child) => (

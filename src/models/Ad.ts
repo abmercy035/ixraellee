@@ -1,10 +1,10 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IAd extends Document {
-  title: string;
+  title?: string;
   description?: string;
   page: "home" | "article" | "category" | "all";
-  section: "mid_article" | "sidebar" | "hero_banner" | "category_top";
+  section: "mid_article" | "sidebar" | "hero_banner" | "category_top" | "header";
   imageUrl: string;
   targetUrl: string;
   buttonText?: string;
@@ -17,27 +17,30 @@ export interface IAd extends Document {
 
 const AdSchema = new Schema<IAd>(
   {
-    title: { type: String, required: true },
+    title: { type: String, default: "" },
     description: { type: String, default: "" },
     page: {
       type: String,
-      enum: ["home", "article", "category", "all"],
-      default: "article",
+      default: "home",
     },
     section: {
       type: String,
-      enum: ["mid_article", "sidebar", "hero_banner", "category_top"],
-      default: "mid_article",
+      default: "header",
     },
     imageUrl: { type: String, required: true },
-    targetUrl: { type: String, default: "#" },
+    targetUrl: { type: String, required: true },
     buttonText: { type: String, default: "" },
-    altText: { type: String, default: "Sponsored Advertisement" },
+    altText: { type: String, default: "" },
     active: { type: Boolean, default: true },
     clicks: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
+
+// Clear model cache in development if schema was updated
+if (process.env.NODE_ENV !== "production" && mongoose.models.Ad) {
+  delete (mongoose.models as Record<string, unknown>).Ad;
+}
 
 export const Ad: Model<IAd> =
   mongoose.models.Ad || mongoose.model<IAd>("Ad", AdSchema);
