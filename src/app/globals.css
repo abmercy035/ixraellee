@@ -5,7 +5,7 @@
   --foreground: #f8fafc;
   --surface: #0b0f18;
   --ink-muted: #cbd5e1;
-  --blue-strong: #93c5fd;
+  --blue-strong: #0088CC;
   --font-body: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-title: Cambria, Georgia, "Times New Roman", serif;
 }
@@ -15,6 +15,17 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
   --font-serif: var(--font-title);
+  --color-blue-50: #e6f7ff;
+  --color-blue-100: #b3e6ff;
+  --color-blue-200: #80d4ff;
+  --color-blue-300: #4dc3ff;
+  --color-blue-400: #1aa3e6;
+  --color-blue-500: #0088CC;
+  --color-blue-600: #0077b3;
+  --color-blue-700: #006699;
+  --color-blue-800: #005580;
+  --color-blue-900: #004466;
+  --color-blue-950: #002233;
 }
 
 body {
@@ -49,7 +60,7 @@ body {
 }
 
 ::selection {
-  background: rgba(37, 99, 235, 0.25);
+  background: rgba(0, 136, 204, 0.3);
   color: #ffffff;
 }
 
@@ -61,14 +72,13 @@ body {
   color: #0f172a;
 }
 
-
 .hero-section {
-  background: radial-gradient(circle at 70% 42%, rgba(59, 130, 246, 0.16), transparent 30%), #ffffff;
+  background: radial-gradient(circle at 70% 42%, rgba(0, 136, 204, 0.16), transparent 30%), #ffffff;
 }
 
 .hero-grid {
   opacity: 0.42;
-  background-image: linear-gradient(rgba(30, 64, 175, 0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(30, 64, 175, 0.055) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(0, 136, 204, 0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 136, 204, 0.055) 1px, transparent 1px);
   background-size: 54px 54px;
   mask-image: radial-gradient(circle at center, black, transparent 78%);
 }
@@ -83,11 +93,11 @@ body {
 }
 
 .hero-glow-one {
-  background: #2563eb;
+  background: #0088CC;
 }
 
 .hero-glow-two {
-  background: #0ea5e9;
+  background: #00aaff;
   animation-delay: -4s;
 }
 
@@ -175,7 +185,7 @@ body {
 }
 
 .markdown a {
-  color: #93c5fd;
+  color: #0088CC;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -183,7 +193,7 @@ body {
 .markdown code {
   border-radius: 0.35rem;
   background: #1e293b;
-  color: #dbeafe;
+  color: #80d4ff;
   padding: 0.1rem 0.35rem;
   font-size: 0.9em;
 }
@@ -197,8 +207,8 @@ body {
 }
 
 .markdown blockquote {
-  border-left: 4px solid #93c5fd;
-  background: #172554;
+  border-left: 4px solid #0088CC;
+  background: rgba(0, 136, 204, 0.12);
   padding: 0.85rem 1rem;
-  color: #dbeafe;
+  color: #e6f7ff;
 }

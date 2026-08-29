@@ -24,10 +24,12 @@ import { CustomToast, ToastMessage } from "../../../components/custom-toast";
 type AdItem = {
   _id: string;
   title: string;
+  description?: string;
   page: "home" | "article" | "category" | "all";
   section: "mid_article" | "sidebar" | "hero_banner" | "category_top";
   imageUrl: string;
   targetUrl: string;
+  buttonText?: string;
   altText?: string;
   active: boolean;
   clicks: number;
@@ -44,10 +46,12 @@ export default function SlothUIAdsManagerPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAd, setEditingAd] = useState<AdItem | null>(null);
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [page, setPage] = useState<"home" | "article" | "category" | "all">("article");
   const [section, setSection] = useState<"mid_article" | "sidebar" | "hero_banner" | "category_top">("mid_article");
   const [imageUrl, setImageUrl] = useState("");
   const [targetUrl, setTargetUrl] = useState("");
+  const [buttonText, setButtonText] = useState("");
   const [altText, setAltText] = useState("");
   const [active, setActive] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -71,10 +75,12 @@ export default function SlothUIAdsManagerPage() {
   function openCreateModal() {
     setEditingAd(null);
     setTitle("");
+    setDescription("");
     setPage("article");
     setSection("mid_article");
     setImageUrl("/images/welcome-journal.jpg");
     setTargetUrl("https://");
+    setButtonText("");
     setAltText("");
     setActive(true);
     setIsModalOpen(true);
@@ -83,10 +89,12 @@ export default function SlothUIAdsManagerPage() {
   function openEditModal(ad: AdItem) {
     setEditingAd(ad);
     setTitle(ad.title);
+    setDescription(ad.description || "");
     setPage(ad.page);
     setSection(ad.section);
     setImageUrl(ad.imageUrl);
     setTargetUrl(ad.targetUrl);
+    setButtonText(ad.buttonText || "");
     setAltText(ad.altText || "");
     setActive(ad.active);
     setIsModalOpen(true);
@@ -125,7 +133,7 @@ export default function SlothUIAdsManagerPage() {
     }
 
     setIsSubmitting(true);
-    const payload = { title, page, section, imageUrl, targetUrl, altText, active };
+    const payload = { title, description, page, section, imageUrl, targetUrl, buttonText, altText, active };
 
     try {
       if (editingAd) {
@@ -421,6 +429,17 @@ export default function SlothUIAdsManagerPage() {
                 />
               </div>
 
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Ad Summary / Short Note</label>
+                <textarea
+                  rows={2}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Short caption or promo summary shown under the headline..."
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-semibold text-slate-950 outline-none focus:border-slate-400 focus:bg-white transition resize-none"
+                />
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Target Page</label>
@@ -451,16 +470,29 @@ export default function SlothUIAdsManagerPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Destination Target Link (URL)</label>
-                <input
-                  type="url"
-                  required
-                  value={targetUrl}
-                  onChange={(e) => setTargetUrl(e.target.value)}
-                  placeholder="https://example.com/promo-landing-page"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-semibold text-slate-950 outline-none focus:border-slate-400 focus:bg-white transition"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Destination Target Link (URL)</label>
+                  <input
+                    type="url"
+                    required
+                    value={targetUrl}
+                    onChange={(e) => setTargetUrl(e.target.value)}
+                    placeholder="https://example.com/promo-landing-page"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-semibold text-slate-950 outline-none focus:border-slate-400 focus:bg-white transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Button Action Text <span className="text-slate-400 font-normal">(Optional)</span></label>
+                  <input
+                    type="text"
+                    value={buttonText}
+                    onChange={(e) => setButtonText(e.target.value)}
+                    placeholder="Optional (e.g. Visit Link, Shop Now)"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-semibold text-slate-950 outline-none focus:border-slate-400 focus:bg-white transition"
+                  />
+                </div>
               </div>
 
               <div>

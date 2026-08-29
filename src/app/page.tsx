@@ -15,12 +15,15 @@ import { DesktopDropdown } from "../components/desktop-dropdown";
 import { HeroSection } from "../components/hero-section";
 import { PostCardMeta } from "../components/post-card-meta";
 import { AdBanner } from "../components/ad-banner";
+import { SearchTrigger } from "../components/search-trigger";
+import { FeaturedCarousel } from "../components/featured-carousel";
 import { Search } from "lucide-react";
 
 const navItems = [
   { label: "Home", href: "/" },
   {
     label: "My Life",
+    href: "/categories",
     children: [
       { label: "Personal", href: "/categories/personal" },
       { label: "Streetwise (Coming)", href: "/categories/streetwise" },
@@ -29,6 +32,7 @@ const navItems = [
   },
   {
     label: "My WORKs",
+    href: "/categories",
     children: [
       { label: "Zion's Sake", href: "/categories/zion%27s%20sake" },
       { label: "Digitize Africa", href: "/categories/digitize%20africa" },
@@ -39,6 +43,7 @@ const navItems = [
   },
   {
     label: "My Thoughts",
+    href: "/categories",
     children: [
       { label: "Philosophy", href: "/categories/philosophy" },
       { label: "Society (New)", href: "/categories/nation%20state" },
@@ -59,7 +64,10 @@ export default async function Home() {
       getWorthReadingPosts(6),
     ]);
 
-  const featured = featuredPosts[0] || allPosts[0];
+  const featuredSlides = [
+    ...(featuredPosts.length > 0 ? featuredPosts : []),
+    ...allPosts.filter((p) => !featuredPosts.find((f) => f.slug === p.slug)),
+  ].slice(0, 3);
   const categories = Array.from(new Set(allPosts.map((post) => post.category)));
 
   return (
@@ -81,7 +89,7 @@ export default async function Home() {
 
         <nav className="hidden h-16 items-center justify-center border-b border-white/15 lg:flex">
           <div className="flex items-center gap-10 text-[11px] font-bold uppercase">
-            <Search className="mr-4 h-5 w-5 text-slate-300 cursor-pointer hover:text-white transition" />
+            <SearchTrigger />
             {navItems.map((item) => (
               "children" in item ? (
                 <DesktopDropdown key={item.label} label={item.label} dropdownItems={item.children ?? []} />
@@ -101,32 +109,13 @@ export default async function Home() {
         {/* SECTION 1: Hero Carousel */}
         <HeroSection posts={heroPosts.length > 0 ? heroPosts : allPosts} />
 
-        {/* SECTION 2: Featured (big left) + Popular Now (2×2 right) */}
-        {featured && (
+        {/* SECTION 2: Featured Carousel (left) + Popular Now (2×2 right) */}
+        {featuredSlides.length > 0 && (
           <section className="border-b border-slate-200">
             <div className="mx-auto grid max-w-7xl gap-0 lg:grid-cols-[0.9fr_1.1fr]">
 
-              {/* Left: Big Featured Card */}
-              <Link href={`/posts/${featured.slug}`} className="group relative block min-h-[460px] overflow-hidden bg-slate-900">
-                <Image
-                  src={featured.banner || "/images/welcome-journal.jpg"}
-                  alt={featured.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover opacity-80 transition duration-700 group-hover:scale-105 group-hover:opacity-70"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-                  <span className="inline-block bg-blue-600 px-3 py-1 text-[10px] font-black uppercase tracking-widest">
-                    {featured.category}
-                  </span>
-                  <h2 className="mt-3 font-serif text-2xl font-black leading-tight sm:text-3xl">
-                    {featured.title}
-                  </h2>
-                  <p className="mt-1 text-xs text-white/60">{featured.date}</p>
-                </div>
-              </Link>
+              {/* Left: Featured Carousel */}
+              <FeaturedCarousel posts={featuredSlides} />
 
               {/* Right: Popular Now */}
               <div className="border-l border-slate-200 p-8">
@@ -204,7 +193,7 @@ export default async function Home() {
               </div>
 
               {/* Right: Worth Reading sidebar */}
-              <div className="bg-white p-6 space-y-6">
+              <div className="bg-white p-6 space-y-6 hidden md:block">
                 <h2 className="font-serif text-xl font-black text-slate-950">Worth Reading</h2>
                 <div className="space-y-4">
                   {worthReadingPosts.slice(0, 5).map((post) => (
@@ -225,95 +214,100 @@ export default async function Home() {
                     </Link>
                   ))}
                 </div>
-
-                {/* Subscribe box inside sidebar */}
-                <div id="subscribe" className="hidden rounded-lg bg-blue-600 p-5 text-white space-y-3">
-                  <h3 className="font-serif text-base font-black">Subscribe Now</h3>
-                  <p className="text-xs text-blue-100 leading-5">Get new stories from ixraellee in your inbox.</p>
-                  <form action="/api/subscribe" method="POST" className="space-y-2">
-                    <input
-                      type="text"
-                      name="name"
-                      placeholder="Your Name"
-                      className="w-full rounded bg-white/20 px-3 py-2 text-xs text-white placeholder-blue-200 outline-none focus:bg-white/30"
-                    />
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      placeholder="Your Email"
-                      className="w-full rounded bg-white/20 px-3 py-2 text-xs text-white placeholder-blue-200 outline-none focus:bg-white/30"
-                    />
-                    <button
-                      type="submit"
-                      className="w-full rounded bg-white py-2 text-xs font-black uppercase tracking-wider text-blue-700 transition hover:bg-blue-50 cursor-pointer"
-                    >
-                      Subscribe
-                    </button>
-                  </form>
-                </div>
               </div>
             </div>
           </section>
         )}
 
-        {/* SECTION 4: Categories — each column: big top post + 3 small list posts */}
-        {categories.length > 0 && (
-          <section className="border-b border-slate-200 px-5 py-12 sm:px-8">
-            <div className="mx-auto max-w-7xl">
-              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                {categories.map((cat) => {
-                  const catPosts = allPosts.filter((p) => p.category === cat);
-                  const topPost = catPosts[0];
-                  const restPosts = catPosts.slice(1, 4);
-                  if (!topPost) return null;
-                  return (
-                    <div key={cat} className="space-y-5">
-                      {/* Category Label */}
-                      <div className="border-b-2 border-blue-600 pb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">{cat}</span>
-                      </div>
+        {/* SECTION 4: Categories — 4 Big Feature Cards + Compact Tiles Below */}
+        {categories.length > 0 && (() => {
+          // Build top-post per category
+          const categoryTopPosts = categories
+            .map((cat) => {
+              const catPosts = allPosts.filter((p) => p.category === cat);
+              return catPosts[0] ? { cat, topPost: catPosts[0], rest: catPosts.slice(1) } : null;
+            })
+            .filter(Boolean) as { cat: string; topPost: typeof allPosts[0]; rest: typeof allPosts }[];
 
-                      {/* Big top post */}
-                      <Link href={`/posts/${topPost.slug}`} className="group block space-y-3">
-                        <div className="relative h-44 w-full overflow-hidden bg-slate-100">
+          const bigFour = categoryTopPosts.slice(0, 3);
+          const remainingCategories = categoryTopPosts.slice(3);
+
+          return (
+            <section className="border-b border-slate-200 px-5 py-12 sm:px-8">
+              <div className="mx-auto max-w-7xl space-y-10">
+
+                {/* 4 Big Feature Cards in a 2×2 grid */}
+                <div className="grid gap-5 sm:grid-cols-3">
+                  {bigFour.map(({ cat, topPost }) => (
+                    <Link
+                      key={cat}
+                      href={`/posts/${topPost.slug}`}
+                      className="group relative block h-64 sm:h-72 overflow-hidden bg-slate-100"
+                    >
+                      <Image
+                        src={topPost.banner}
+                        alt={topPost.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                        className="object-cover transition duration-700 group-hover:scale-105"
+                      />
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent" />
+
+                      {/* Text Content */}
+                      <div className="absolute bottom-0 left-0 right-0 p-5 space-y-1.5">
+                        <span className="inline-block border border-[#0088CC]/70 bg-[#0088CC]/20 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-[#4dc3ff] backdrop-blur-sm">
+                          {cat}
+                        </span>
+                        <h3 className="font-serif text-lg sm:text-xl font-bold leading-snug text-white group-hover:text-[#4dc3ff] transition line-clamp-2">
+                          {topPost.title}
+                        </h3>
+                        <p className="text-[11px] text-slate-300 line-clamp-1">{topPost.excerpt}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Remaining Categories as medium cards */}
+                {remainingCategories.length > 0 && (
+                  <div className="border-t border-slate-200 pt-8 grid grid-cols-4">
+                    {remainingCategories.map(({ cat, topPost }) => (
+                      <Link
+                        key={cat}
+                        href={`/posts/${topPost.slug}`}
+                        className="group flex items-center gap-4 border-b border-slate-100 pb-4 last:border-0 last:pb-0"
+                      >
+                        {/* Image — fixed size on left */}
+                        <div className="relative h-20 w-28 sm:w-36 shrink-0 overflow-hidden bg-slate-100">
                           <Image
                             src={topPost.banner}
                             alt={topPost.title}
                             fill
-                            sizes="(max-width: 1024px) 100vw, 360px"
+                            sizes="144px"
                             className="object-cover transition duration-500 group-hover:scale-105"
                           />
-                          <span className="absolute bottom-2 left-2 bg-slate-900/80 px-2 py-0.5 text-[9px] font-black uppercase text-white tracking-wider">
-                            {topPost.category}
-                          </span>
                         </div>
-                        <h3 className="text-base font-bold leading-6 text-blue-700 group-hover:underline line-clamp-2">{topPost.title}</h3>
-                        <p className="text-xs text-slate-500 line-clamp-2">{topPost.excerpt}</p>
-                        <PostCardMeta category={topPost.category} />
-                      </Link>
 
-                      {/* Small list posts */}
-                      <div className="space-y-3 border-t border-slate-100 pt-4">
-                        {restPosts.map((post) => (
-                          <Link key={post.slug} href={`/posts/${post.slug}`} className="group flex gap-3 items-center">
-                            <div className="relative h-12 w-16 shrink-0 overflow-hidden bg-slate-100">
-                              <Image src={post.banner} alt={post.title} fill sizes="64px" className="object-cover" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[10px] text-slate-400">{post.date}</p>
-                              <h4 className="text-xs font-bold leading-4 text-slate-800 group-hover:text-blue-700 line-clamp-2">{post.title}</h4>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
+                        {/* Details — right side */}
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-[#0088CC]">
+                            {cat}
+                          </span>
+                          <h3 className="font-serif text-sm sm:text-base font-bold leading-snug text-slate-900 group-hover:text-[#0088CC] transition line-clamp-2">
+                            {topPost.title}
+                          </h3>
+                          <p className="text-[11px] text-slate-400 line-clamp-1">{topPost.excerpt}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
               </div>
-            </div>
-          </section>
-        )}
+            </section>
+          );
+        })()}
+
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}

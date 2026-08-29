@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, page, section, imageUrl, targetUrl, altText, active } = body;
+    const { title, description, page, section, imageUrl, targetUrl, buttonText, altText, active } = body;
 
     if (!title || !imageUrl) {
       return NextResponse.json({ error: "Title and Image URL are required." }, { status: 400 });
@@ -44,10 +44,12 @@ export async function POST(request: Request) {
 
     const newAd = await Ad.create({
       title,
+      description: description || "",
       page: page || "all",
       section: section || "mid_article",
       imageUrl,
       targetUrl: targetUrl || "#",
+      buttonText: buttonText || "",
       altText: altText || title,
       active: active !== false,
     });

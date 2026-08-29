@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { SearchTrigger } from "./search-trigger";
 
 type NavItem = {
   label: string;
@@ -71,7 +72,11 @@ export function MobileNav({ items }: MobileNavProps) {
             </button>
           </div>
 
-          <nav className="flex flex-1 flex-col gap-2 px-5 py-5">
+          <div className="px-5 pt-4">
+            <SearchTrigger variant="full" />
+          </div>
+
+          <nav className="flex flex-1 flex-col gap-2 px-5 py-4">
             {items.map((item) =>
               "children" in item ? (
                 <details key={item.label} className="group rounded-2xl border border-white/15">

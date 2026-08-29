@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 
 type AdBannerProps = {
   page: "home" | "article" | "category";
@@ -13,14 +12,16 @@ type AdBannerProps = {
 type AdData = {
   _id: string;
   title: string;
+  description?: string;
   imageUrl: string;
   targetUrl: string;
+  buttonText?: string;
   altText?: string;
 };
 
 export function AdBanner({ page, section, className = "" }: AdBannerProps) {
-  const [ad, setAd] = useState<AdData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [adsList, setAdsList] = useState<AdData[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -28,24 +29,28 @@ export function AdBanner({ page, section, className = "" }: AdBannerProps) {
       .then((res) => res.json())
       .then((data) => {
         if (isMounted && Array.isArray(data) && data.length > 0) {
-          // Pick a random active ad or the latest active ad for this section
-          const selected = data[Math.floor(Math.random() * data.length)];
-          setAd(selected);
+          setAdsList(data);
         }
       })
-      .catch(() => {})
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
+      .catch(() => {});
 
     return () => {
       isMounted = false;
     };
   }, [page, section]);
 
-  function handleAdClick() {
-    if (ad && ad._id) {
-      fetch(`/api/admin/ads/${ad._id}`, {
+  // Auto-rotate ads every 6 seconds if multiple ads exist
+  useEffect(() => {
+    if (adsList.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % adsList.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [adsList.length]);
+
+  function handleAdClick(adId?: string) {
+    if (adId) {
+      fetch(`/api/admin/ads/${adId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "click" }),
@@ -53,48 +58,115 @@ export function AdBanner({ page, section, className = "" }: AdBannerProps) {
     }
   }
 
-  if (loading) {
-    return (
-      <div className={`my-8 h-40 w-full animate-pulse rounded-2xl bg-white/5 border border-white/10 ${className}`} />
-    );
+  function handleNext() {
+    if (adsList.length <= 1) return;
+    setCurrentIndex((prev) => (prev + 1) % adsList.length);
   }
 
-  // Fallback sponsored ad if no active custom ad is found
-  const bannerImage = ad?.imageUrl || "/images/welcome-journal.jpg";
-  const bannerTitle = ad?.title || "Bella Hair — Premium Luxury Wigs & Extensions";
-  const bannerTarget = ad?.targetUrl || "https://bellahair.com";
+  function handlePrev() {
+    if (adsList.length <= 1) return;
+    setCurrentIndex((prev) => (prev - 1 + adsList.length) % adsList.length);
+  }
+
+  if (adsList.length === 0) {
+    return null;
+  }
+
+  const currentAd = adsList[currentIndex];
+
+  // Per-placement height — outer wrapper + inner content div must match
+  const heightClass: Record<typeof section, string> = {
+    hero_banner:  "min-h-[380px] sm:min-h-[480px]", // home — tall
+    mid_article:  "min-h-[220px] sm:min-h-[280px]", // in-article — compact
+    category_top: "min-h-[220px] sm:min-h-[280px]", // before Keep Reading — compact
+    sidebar:      "min-h-[200px] sm:min-h-[240px]", // sidebar — smallest
+  };
+  const hClass = heightClass[section];
 
   return (
-    <div className={`my-10 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-[#0b0f19] to-slate-950 p-6 shadow-2xl ${className}`}>
-      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-2 max-w-lg">
-          <span className="inline-block rounded-full bg-blue-500/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-400 border border-blue-500/30">
-            Sponsored
-          </span>
-          <h3 className="font-serif text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug">
-            {bannerTitle}
-          </h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Discover curated beauty, lifestyle products, and exclusive premium offers.
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shrink-0">
-          <div className="relative h-24 w-full sm:w-36 overflow-hidden rounded-xl border border-white/10">
-            <img src={bannerImage} alt={bannerTitle} className="h-full w-full object-cover" />
-          </div>
-
-          <a
-            href={bannerTarget}
-            target="_blank"
-            rel="noreferrer"
-            onClick={handleAdClick}
-            className="flex items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-xs font-bold text-white transition hover:bg-blue-500 shadow-md cursor-pointer"
-          >
-            Visit Sponsor →
-          </a>
-        </div>
+    <a
+      href={currentAd.targetUrl}
+      target="_blank"
+      rel="noreferrer"
+      onClick={() => handleAdClick(currentAd._id)}
+      className={`group relative my-10 block ${hClass} w-full overflow-hidden cursor-pointer transition-all duration-300 ${className}`}
+    >
+      {/* Background Image Layer */}
+      <div className="absolute inset-0 h-full w-full overflow-hidden">
+        <img
+          src={currentAd.imageUrl}
+          alt={currentAd.title}
+          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        />
+        {/* Soft Transparent Gradient Overlay so Image Remains Bright */}
+        <div className="absolute inset-0 bg-linear-to-r from-slate-950/70 via-slate-950/40 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-slate-950/70 via-transparent to-black/20" />
       </div>
-    </div>
+
+      {/* Floating Foreground Content Layer */}
+      <div className={`relative z-10 flex h-full ${hClass} flex-col justify-between p-6 sm:p-10 md:p-12`}>
+        {/* Center Title & Summary Note */}
+        <div className="my-auto max-w-2xl space-y-3 py-4">
+          <h3 className="font-serif text-2xl sm:text-4xl md:text-5xl font-black leading-tight text-white tracking-tight drop-shadow-md">
+            {currentAd.title}
+          </h3>
+
+          {currentAd.description ? (
+            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium max-w-xl drop-shadow-sm">
+              {currentAd.description}
+            </p>
+          ) : null}
+
+          {/* Button — only shown if buttonText is explicitly set and non-empty */}
+          {currentAd.buttonText && String(currentAd.buttonText).trim().length > 0 ? (
+            <div className="pt-2">
+              <span className="inline-flex items-center gap-2 rounded-sm bg-white px-6 py-2 text-xs sm:text-sm font-extrabold text-slate-950 shadow-2xl">
+                {currentAd.buttonText} <ExternalLink className="h-4 w-4 text-slate-900" />
+              </span>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Footer Carousel Controls & Indicator Dots */}
+        {adsList.length > 1 && (
+          <div
+            className="flex items-center justify-between border-t border-white/10 pt-4"
+            onClick={(e) => e.preventDefault()}
+          >
+            {/* Pagination Dots */}
+            <div className="flex items-center gap-1.5">
+              {adsList.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={(e) => { e.preventDefault(); setCurrentIndex(idx); }}
+                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                    idx === currentIndex ? "w-7 bg-amber-400" : "w-2 bg-white/40 hover:bg-white/70"
+                  }`}
+                  aria-label={`Go to ad ${idx + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Prev / Next Controls */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => { e.preventDefault(); handlePrev(); }}
+                className="rounded-full border border-white/20 bg-slate-950/60 p-2 text-white hover:bg-white/20 transition cursor-pointer backdrop-blur-md"
+                aria-label="Previous advertisement"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={(e) => { e.preventDefault(); handleNext(); }}
+                className="rounded-full border border-white/20 bg-slate-950/60 p-2 text-white hover:bg-white/20 transition cursor-pointer backdrop-blur-md"
+                aria-label="Next advertisement"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </a>
   );
 }

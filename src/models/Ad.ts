@@ -2,10 +2,12 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IAd extends Document {
   title: string;
+  description?: string;
   page: "home" | "article" | "category" | "all";
   section: "mid_article" | "sidebar" | "hero_banner" | "category_top";
   imageUrl: string;
   targetUrl: string;
+  buttonText?: string;
   altText?: string;
   active: boolean;
   clicks: number;
@@ -16,6 +18,7 @@ export interface IAd extends Document {
 const AdSchema = new Schema<IAd>(
   {
     title: { type: String, required: true },
+    description: { type: String, default: "" },
     page: {
       type: String,
       enum: ["home", "article", "category", "all"],
@@ -28,6 +31,7 @@ const AdSchema = new Schema<IAd>(
     },
     imageUrl: { type: String, required: true },
     targetUrl: { type: String, default: "#" },
+    buttonText: { type: String, default: "" },
     altText: { type: String, default: "Sponsored Advertisement" },
     active: { type: Boolean, default: true },
     clicks: { type: Number, default: 0 },

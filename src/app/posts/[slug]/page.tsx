@@ -49,7 +49,7 @@ export default async function PostPage({ params }: PostPageProps) {
             Ixraellee Journal
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/categories/personal" className="text-xs font-semibold text-slate-400 hover:text-white transition">
+            <Link href="/categories" className="text-xs font-semibold text-slate-400 hover:text-white transition">
               Categories
             </Link>
             <Link href="/" className="flex items-center gap-1 text-xs font-bold text-blue-400 hover:text-blue-300 transition">
@@ -142,6 +142,9 @@ export default async function PostPage({ params }: PostPageProps) {
 
             {/* Reader Comments Section */}
             <CommentsSection postSlug={post.slug} />
+
+            {/* Ad Banner — before Keep Reading */}
+            <AdBanner page="article" section="category_top" />
 
             {/* "Keep reading" Related Articles Section */}
             <div className="border-t border-white/10 pt-10 space-y-6">
