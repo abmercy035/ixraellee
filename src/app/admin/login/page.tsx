@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Lock, ShieldAlert } from "lucide-react";
+import { Loader2, Lock, ShieldAlert, ArrowLeft } from "lucide-react";
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
@@ -105,8 +105,8 @@ export default function AdminLoginPage() {
         </form>
 
         <div className="border-t border-white/10 pt-4 text-center">
-          <Link href="/" className="text-xs text-white/50 hover:text-white transition">
-            ← Return to Ixraellee Journal
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-white/50 hover:text-white transition">
+            <ArrowLeft className="h-3.5 w-3.5" /> Return to Ixraellee Journal
           </Link>
         </div>
       </div>

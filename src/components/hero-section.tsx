@@ -38,11 +38,11 @@ export function HeroSection({ posts }: HeroSectionProps) {
     const stableHero: HTMLElement = heroElement;
     const drawingContext: CanvasRenderingContext2D = context;
 
-    const count = 75;
+    const count = 200;
     const particles = Array.from({ length: count }, (_, index) => ({
       angle: (index / count) * Math.PI * 2,
-      radius: 50 + ((index * 37) % 390),
-      size: 2.2 + ((index * 13) % 10) / 3,
+      radius: 40 + ((index * 23) % 340),
+      size: 2.0 + ((index * 13) % 10) / 3,
       depth: 0.35 + ((index * 17) % 65) / 100,
       square: index % 4 === 0,
       tone: index % 3,

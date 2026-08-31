@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { getAllPosts, getPostBySlug } from "../../../lib/blog";
-import { ChevronRight, ArrowRight, Sparkles, Smartphone } from "lucide-react";
+import { ChevronRight, ArrowRight, ArrowLeft, Sparkles, Smartphone } from "lucide-react";
 import { CommentsSection } from "../../../components/comments-section";
 import { AdBanner } from "../../../components/ad-banner";
 import { SubscribeForm } from "../../../components/subscribe-form";
@@ -21,25 +21,35 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
-
-  return {
-    title: `${post.title} | Ixraellee Journal`,
-    description: post.excerpt,
-  };
+  try {
+    const post = await getPostBySlug(slug);
+    return {
+      title: `${post.title} | Ixraellee Journal`,
+      description: post.excerpt,
+    };
+  } catch {
+    return {
+      title: "Post Not Found | Ixraellee Journal",
+    };
+  }
 }
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
-  const allPosts = await getAllPosts();
-  const relatedPosts = allPosts.filter((p) => p.slug !== slug).slice(0, 2);
 
-  // Split content html into two halves to insert the landing-page style ad banner in between
+  const allPosts = await getAllPosts();
+  const relatedPosts = allPosts
+    .filter((p) => p.slug !== post.slug)
+    .slice(0, 3);
+
+  // Split HTML into two parts around mid-point paragraph for ad placement
   const contentParts = post.contentHtml.split("</p>");
   const midPoint = Math.ceil(contentParts.length / 2);
   const firstHalfHtml = contentParts.slice(0, midPoint).join("</p>") + (contentParts.length > 1 ? "</p>" : "");
   const secondHalfHtml = contentParts.slice(midPoint).join("</p>");
+
+  const categorySlug = encodeURIComponent(post.category.toLowerCase());
 
   return (
     <div className="min-h-screen bg-[#050505] text-slate-100 font-sans antialiased pb-20">
@@ -50,11 +60,8 @@ export default async function PostPage({ params }: PostPageProps) {
             Ixraellee Journal
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/categories" className="text-xs font-semibold text-slate-400 hover:text-white transition">
-              Categories
-            </Link>
-            <Link href="/" className="flex items-center gap-1 text-xs font-bold text-blue-400 hover:text-blue-300 transition">
-              Back
+            <Link href={`/categories/${categorySlug}`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition">
+              <ArrowLeft className="h-4 w-4" /> Back to {post.category}
             </Link>
           </div>
         </div>
@@ -85,7 +92,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 </div>
                 <div>
                   <p className="font-bold text-white text-sm">Ixraellee</p>
-                  <p className="text-slate-400">Published {post.date} · 5 min read</p>
+                  <p className="text-slate-400">Published {post.date} · {post.readTime || 1} min read</p>
                 </div>
               </div>
               <div className="text-right text-[11px] text-slate-400">
@@ -95,9 +102,15 @@ export default async function PostPage({ params }: PostPageProps) {
 
             {/* Title Header */}
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-blue-400 mb-3">
-                {post.category}
-              </div>
+              <nav className="flex flex-wrap items-center gap-2 text-xs text-slate-400 mb-4">
+                <Link href="/" className="hover:text-white transition">Home</Link>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
+                <Link href="/categories" className="hover:text-white transition">Categories</Link>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
+                <Link href={`/categories/${categorySlug}`} className="text-blue-400 font-semibold hover:underline capitalize">
+                  {post.category}
+                </Link>
+              </nav>
               <h1 className="font-serif text-3xl font-black leading-tight text-white sm:text-5xl">
                 {post.title}
               </h1>

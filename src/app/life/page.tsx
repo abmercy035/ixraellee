@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getAllPosts, PostMetadata } from "../../lib/blog";
 
 export const revalidate = 0;
@@ -17,8 +18,8 @@ export default async function LifePage() {
           <Link href="/" className="font-serif text-2xl font-black tracking-tight text-white">
             Ixraellee Journal
           </Link>
-          <Link href="/" className="text-sm font-semibold text-blue-300 hover:text-blue-200">
-            ← Home
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-300 hover:text-blue-200 transition">
+            <ArrowLeft className="h-4 w-4" /> Home
           </Link>
         </div>
       </header>

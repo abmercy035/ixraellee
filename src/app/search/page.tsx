@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Home, ChevronRight, FileText } from "lucide-react";
+import { Search, Home, ChevronRight, FileText, ArrowLeft } from "lucide-react";
 import type { PostMetadata } from "../../lib/blog";
 
 function SearchPageContent() {
@@ -36,8 +36,8 @@ function SearchPageContent() {
           <Link href="/" className="font-serif text-2xl font-black tracking-tight text-white">
             Ixraellee Journal
           </Link>
-          <Link href="/" className="text-xs font-semibold text-[#0088CC] hover:underline flex items-center gap-1">
-            ← Back to Home
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0088CC] hover:underline transition">
+            <ArrowLeft className="h-4 w-4" /> Back to Home
           </Link>
         </div>
       </header>

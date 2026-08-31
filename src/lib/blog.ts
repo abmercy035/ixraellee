@@ -14,13 +14,22 @@ export type PostMetadata = {
   worthReading?: boolean;
   views?: number;
   published?: boolean;
+  readTime?: number;
 };
 
 export type PostData = PostMetadata & {
   contentHtml: string;
 };
 
+export function calculateReadTime(text?: string): number {
+  if (!text) return 1;
+  const plainText = text.replace(/<[^>]*>/g, " ").replace(/#|\*|_|`|\[|\]|\(|\)/g, " ");
+  const words = plainText.trim().split(/\s+/).filter((w) => w.length > 0).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
+
 function formatDocToMetadata(p: IPost): PostMetadata {
+  const contentToCount = p.content || p.excerpt || "";
   return {
     slug: p.slug,
     title: p.title,
@@ -32,6 +41,7 @@ function formatDocToMetadata(p: IPost): PostMetadata {
     worthReading: p.worthReading || false,
     views: p.views || 0,
     published: p.published !== false,
+    readTime: calculateReadTime(contentToCount),
   };
 }
 
@@ -165,6 +175,8 @@ export async function getPostBySlug(slug: string): Promise<PostData> {
     const processedContent = await remark().use(html).process(dbPost.content);
     const contentHtml = processedContent.toString();
 
+    const readTime = calculateReadTime(dbPost.content || dbPost.excerpt);
+
     return {
       slug: dbPost.slug,
       title: dbPost.title,
@@ -175,6 +187,7 @@ export async function getPostBySlug(slug: string): Promise<PostData> {
       featured: dbPost.featured,
       worthReading: dbPost.worthReading,
       views: dbPost.views,
+      readTime,
       contentHtml,
     };
   } catch (err) {

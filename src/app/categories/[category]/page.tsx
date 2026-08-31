@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import { getAllPosts, PostMetadata } from "../../../lib/blog";
 import { AdBanner } from "../../../components/ad-banner";
 
@@ -34,17 +35,28 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <Link href="/" className="font-serif text-2xl font-black tracking-tight text-white">
             Ixraellee Journal
           </Link>
-          <Link href="/" className="text-sm font-semibold text-blue-300 hover:text-blue-200">
-            ← Home
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/categories" className="text-xs font-medium text-slate-400 hover:text-white transition">
+              All Categories
+            </Link>
+            <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-300 hover:text-blue-200 transition">
+              <ArrowLeft className="h-4 w-4" /> Home
+            </Link>
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-5xl px-5 py-12">
-        <div className="border-b border-white/15 pb-8">
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-blue-300">Category Archive</p>
-          <h1 className="mt-2 font-serif text-4xl font-black capitalize text-white sm:text-5xl">{decoded}</h1>
-          <p className="mt-3 text-sm text-white/60">{posts.length} {posts.length === 1 ? "story" : "stories"} published</p>
+        <div className="border-b border-white/15 pb-8 space-y-3">
+          <nav className="flex items-center gap-2 text-xs text-slate-400">
+            <Link href="/" className="hover:text-white transition">Home</Link>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
+            <Link href="/categories" className="hover:text-white transition">Categories</Link>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
+            <span className="text-blue-400 font-semibold capitalize">{decoded}</span>
+          </nav>
+          <h1 className="font-serif text-4xl font-black capitalize text-white sm:text-5xl">{decoded}</h1>
+          <p className="text-sm text-white/60">{posts.length} {posts.length === 1 ? "story" : "stories"} published</p>
         </div>
 
         <AdBanner page="category" section="category_top" />
