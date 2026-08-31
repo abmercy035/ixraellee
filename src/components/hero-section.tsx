@@ -38,10 +38,11 @@ export function HeroSection({ posts }: HeroSectionProps) {
     const stableHero: HTMLElement = heroElement;
     const drawingContext: CanvasRenderingContext2D = context;
 
-    const particles = Array.from({ length: 400 }, (_, index) => ({
-      angle: (index / 400) * Math.PI * 2,
+    const count = 75;
+    const particles = Array.from({ length: count }, (_, index) => ({
+      angle: (index / count) * Math.PI * 2,
       radius: 50 + ((index * 37) % 390),
-      size: 1.8 + ((index * 13) % 10) / 3,
+      size: 2.2 + ((index * 13) % 10) / 3,
       depth: 0.35 + ((index * 17) % 65) / 100,
       square: index % 4 === 0,
       tone: index % 3,
@@ -53,16 +54,18 @@ export function HeroSection({ posts }: HeroSectionProps) {
       velocityY: 0,
     }));
 
+    let animationFrameId: number | null = null;
     let animationFrame = 0;
     let width = 0;
     let height = 0;
     const pointer = { x: 0, y: 0 };
     let particlesInitialized = false;
     const fieldCenter = { x: 0, y: 0 };
+    let isVisible = true;
 
     function resizeCanvas() {
       const bounds = stableHero.getBoundingClientRect();
-      const ratio = window.devicePixelRatio || 1;
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
       width = bounds.width;
       height = bounds.height;
       fieldCenter.x = width * 0.73;
@@ -88,7 +91,15 @@ export function HeroSection({ posts }: HeroSectionProps) {
       return Math.abs(Math.sin(value * 12.9898) * 43758.5453) % 1;
     }
 
+    const tones = [
+      "rgba(30, 64, 175, 0.65)",
+      "rgba(37, 99, 235, 0.7)",
+      "rgba(15, 23, 42, 0.5)",
+    ];
+
     function render() {
+      if (!isVisible) return;
+
       pointer.x += (pointerTarget.current.x - pointer.x) * 0.16;
       pointer.y += (pointerTarget.current.y - pointer.y) * 0.16;
       drawingContext.clearRect(0, 0, width, height);
@@ -120,56 +131,22 @@ export function HeroSection({ posts }: HeroSectionProps) {
           }
         }
 
-        particle.velocityX += (targetX - particle.x) * 0.018;
-        particle.velocityY += (targetY - particle.y) * 0.018;
-        particle.velocityX *= 0.84;
-        particle.velocityY *= 0.84;
-        particle.x += particle.velocityX;
-        particle.y += particle.velocityY;
-        // Smooth & Fast pointer tracking
-        pointer.x += (pointerTarget.current.x - pointer.x) * 0.35;
-        pointer.y += (pointerTarget.current.y - pointer.y) * 0.35;
-
-        if (pointerTarget.current.active) {
-          fieldCenter.x += (pointer.x - fieldCenter.x) * 0.18;
-          fieldCenter.y += (pointer.y - fieldCenter.y) * 0.18;
-        }
-
-        // Snappy field target update
-        particle.baseX += (fieldTargetX - particle.baseX) * 0.12;
-        particle.baseY += (fieldTargetY - particle.baseY) * 0.12;
-
-        // Snappy acceleration and velocity damping
-        particle.velocityX += (targetX - particle.x) * 0.045;
-        particle.velocityY += (targetY - particle.y) * 0.045;
+        particle.velocityX += (targetX - particle.x) * 0.03;
+        particle.velocityY += (targetY - particle.y) * 0.03;
         particle.velocityX *= 0.82;
         particle.velocityY *= 0.82;
+        particle.x += particle.velocityX;
+        particle.y += particle.velocityY;
 
         const x = particle.x;
         const y = particle.y;
-        const size = particle.size * (0.2 + particle.depth * 1.1);
-        const alpha = 0.42 + particle.depth * 0.34;
-        const tone = [
-          { highlight: "30, 64, 175", mid: "15, 23, 42", edge: "2, 6, 23" },
-          { highlight: "37, 99, 235", mid: "23, 37, 84", edge: "3, 7, 18" },
-          { highlight: "15, 23, 42", mid: "2, 6, 23", edge: "0, 0, 0" },
-        ][particle.tone];
+        const size = particle.size * (0.4 + particle.depth * 1.1);
 
         drawingContext.save();
         drawingContext.translate(x, y);
-        drawingContext.rotate(particle.angle * 0.35 + particle.velocityX * 0.02);
-        const sphereGradient = drawingContext.createRadialGradient(-size * 0.3, -size * 0.35, 0, 0, 0, size);
-        sphereGradient.addColorStop(0, `rgba(${tone.highlight}, ${alpha})`);
-        sphereGradient.addColorStop(0.32, `rgba(${tone.mid}, ${alpha})`);
-        sphereGradient.addColorStop(1, `rgba(${tone.edge}, ${alpha * 0.9})`);
-        drawingContext.fillStyle = sphereGradient;
-        drawingContext.shadowColor = `rgba(30, 64, 175, ${alpha * 0.75})`;
-        drawingContext.shadowBlur = 6 * particle.depth;
+        drawingContext.fillStyle = tones[particle.tone];
         if (particle.square) {
           drawingContext.fillRect(-size / 2, -size / 2, size, size);
-          drawingContext.strokeStyle = `rgba(96, 165, 250, ${alpha * 0.65})`;
-          drawingContext.lineWidth = 0.7;
-          drawingContext.strokeRect(-size / 2, -size / 2, size, size);
         } else {
           drawingContext.beginPath();
           drawingContext.arc(0, 0, size / 2, 0, Math.PI * 2);
@@ -179,16 +156,34 @@ export function HeroSection({ posts }: HeroSectionProps) {
       }
 
       animationFrame += 1;
-      animationFrame = window.requestAnimationFrame(render);
+      animationFrameId = window.requestAnimationFrame(render);
     }
 
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
-    animationFrame = window.requestAnimationFrame(render);
+
+    // Pause animation when scrolled offscreen to conserve GPU/CPU resources
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        isVisible = entry ? entry.isIntersecting : true;
+        if (isVisible && !animationFrameId) {
+          animationFrameId = window.requestAnimationFrame(render);
+        } else if (!isVisible && animationFrameId) {
+          window.cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(stableHero);
+
+    animationFrameId = window.requestAnimationFrame(render);
 
     return () => {
+      observer.disconnect();
       window.removeEventListener("resize", resizeCanvas);
-      window.cancelAnimationFrame(animationFrame);
+      if (animationFrameId) window.cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
