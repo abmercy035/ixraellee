@@ -57,15 +57,17 @@ export interface TemplateEmailPayload {
   name?: string;
   templateUuid?: string;
   templateVariables?: Record<string, string>;
+  isBulk?: boolean;
 }
 
 /**
- * Send email using Mailtrap Template (e.g. Welcome email for new subscribers)
+ * Send email using Mailtrap Template (Single transactional email or bulk)
  */
 export async function sendMailtrapTemplateEmail(payload: TemplateEmailPayload): Promise<{ success: boolean; error?: string }> {
   try {
     const sender = getSender();
-    const mailtrapClient = getMailtrapClient(true); // Using bulk endpoint for email broadcasts / templates
+    // Pass isBulk = false for single mail (send.api.mailtrap.io), or true for bulk sending (bulk.api.mailtrap.io)
+    const mailtrapClient = getMailtrapClient(payload.isBulk ?? false);
     const templateUuid = payload.templateUuid || process.env.MAILTRAP_WELCOME_TEMPLATE_UUID || "16d0c4d5-a266-427b-b3e1-7999862ec84b";
 
     if (mailtrapClient) {
@@ -78,7 +80,7 @@ export async function sendMailtrapTemplateEmail(payload: TemplateEmailPayload): 
           name: payload.name || "Subscriber",
         },
       });
-      console.log(`[Mailtrap Template Send Success]: Dispatched to ${payload.to}`, response);
+      console.log(`[Mailtrap Template Send Success]: Dispatched single/template to ${payload.to}`, response);
       return { success: true };
     }
 
