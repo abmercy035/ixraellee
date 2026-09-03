@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "../../../lib/db";
 import { Subscriber } from "../../../models/Subscriber";
 import { sendEmail } from "../../../lib/email";
+import { getSubscriptionWelcomeTemplate } from "../../../lib/email-templates";
 
 export async function POST(request: Request) {
   try {
@@ -48,13 +49,18 @@ export async function POST(request: Request) {
     });
 
     try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ixraellee.com";
+      const recipientName = name?.trim() || "Reader";
+      const emailHtml = getSubscriptionWelcomeTemplate(recipientName, siteUrl);
+
       await sendEmail({
         to: normalizedEmail,
-        subject: "Welcome to Ixraellee Journal",
-        html: `<h1>Welcome to Ixraellee Journal</h1><p>Hi ${name ? name : "Reader"},</p><p>Thank you for subscribing to new stories, field notes, and ideas from Ixraellee.</p>`,
+        name: recipientName,
+        subject: "Welcome to Ixraellee Journal 🎉",
+        html: emailHtml,
       });
-    } catch {
-      // Email sending failure shouldn't fail subscription
+    } catch (e) {
+      console.error("[Subscribe Welcome Email Error]:", e);
     }
 
     return NextResponse.json({ message: "Thank you for subscribing!" }, { status: 201 });

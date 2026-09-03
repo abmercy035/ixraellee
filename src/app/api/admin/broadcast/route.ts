@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/db";
 import { Subscriber } from "../../../../models/Subscriber";
-import { sendEmail } from "../../../../lib/email";
+import { sendBroadcast } from "../../../../lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -13,25 +13,30 @@ export async function POST(request: Request) {
 
     await connectDB();
 
-    const activeSubscribers = await Subscriber.find({ status: "active" }).select("email").lean();
+    const activeSubscribers = await Subscriber.find({ status: "active" }).select("email name").lean();
     if (activeSubscribers.length === 0) {
       return NextResponse.json({ message: "No active subscribers found." });
     }
 
-    let sentCount = 0;
-    for (const subscriber of activeSubscribers) {
-      const res = await sendEmail({
-        to: subscriber.email,
-        subject,
-        html,
-      });
-      if (res.success) sentCount++;
+    const recipients = activeSubscribers.map((s) => ({
+      name: s.name || "Subscriber",
+      address: s.email,
+    }));
+
+    const result = await sendBroadcast({
+      subject,
+      html,
+      recipients,
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || "Broadcast failed" }, { status: 500 });
     }
 
     return NextResponse.json({
-      message: `Broadcast initiated successfully. Dispatched to ${sentCount} of ${activeSubscribers.length} subscribers.`,
+      message: `Broadcast initiated successfully. Dispatched to ${result.sentCount} of ${activeSubscribers.length} subscribers.`,
       recipientCount: activeSubscribers.length,
-      sentCount,
+      sentCount: result.sentCount,
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Internal server error";
