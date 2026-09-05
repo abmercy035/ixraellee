@@ -19,6 +19,50 @@ export interface BroadcastPayload {
   recipients: EmailRecipient[];
 }
 
+export interface TemplateEmailPayload {
+  to: string;
+  name?: string;
+  templateUuid?: string;
+  templateVariables?: Record<string, string>;
+  isBulk?: boolean;
+}
+
+/**
+ * Generate full unsubscribe URL for a specific recipient email address
+ */
+export function getUnsubscribeUrl(email: string): string {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://ixraellee.com").replace(/\/$/, "");
+  return `${siteUrl}/unsubscribe?email=${encodeURIComponent(email)}`;
+}
+
+/**
+ * Process HTML template to replace __unsubscribe_url__ placeholders and ensure an unsubscribe link exists
+ */
+export function processEmailHtml(html: string, recipientEmail: string): string {
+  const unsubscribeUrl = getUnsubscribeUrl(recipientEmail);
+  let processed = html;
+
+  if (processed.includes("__unsubscribe_url__")) {
+    processed = processed.replaceAll("__unsubscribe_url__", unsubscribeUrl);
+  } else if (!processed.toLowerCase().includes("/unsubscribe")) {
+    // Append standard footer unsubscribe link if missing
+    const footerSnippet = `
+      <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid rgba(226, 232, 240, 0.2); text-align: center; font-size: 12px; color: #94a3b8; font-family: sans-serif;">
+        <p style="margin: 0 0 4px 0;">You received this because you subscribed to Ixraellee Journal.</p>
+        <a href="${unsubscribeUrl}" style="color: #0088CC; text-decoration: underline;">Unsubscribe from updates</a>
+      </div>
+    `;
+
+    if (processed.includes("</body>")) {
+      processed = processed.replace("</body>", `${footerSnippet}</body>`);
+    } else {
+      processed += footerSnippet;
+    }
+  }
+
+  return processed;
+}
+
 function getSender() {
   return {
     name: process.env.MAILTRAP_SENDER_NAME || process.env.ENSEND_SENDER_NAME || "Ixraellee Journal",
@@ -52,33 +96,30 @@ function getSmtpTransporter() {
   });
 }
 
-export interface TemplateEmailPayload {
-  to: string;
-  name?: string;
-  templateUuid?: string;
-  templateVariables?: Record<string, string>;
-  isBulk?: boolean;
-}
-
 /**
  * Send email using Mailtrap Template (Single transactional email or bulk)
  */
 export async function sendMailtrapTemplateEmail(payload: TemplateEmailPayload): Promise<{ success: boolean; error?: string }> {
   try {
     const sender = getSender();
-    // Pass isBulk = false for single mail (send.api.mailtrap.io), or true for bulk sending (bulk.api.mailtrap.io)
     const mailtrapClient = getMailtrapClient(payload.isBulk ?? false);
     const templateUuid = payload.templateUuid || process.env.MAILTRAP_WELCOME_TEMPLATE_UUID || "16d0c4d5-a266-427b-b3e1-7999862ec84b";
+    const unsubscribeUrl = getUnsubscribeUrl(payload.to);
 
     if (mailtrapClient) {
+      const templateVars = {
+        company_info_name: sender.name,
+        name: payload.name || "Subscriber",
+        unsubscribe_url: unsubscribeUrl,
+        __unsubscribe_url__: unsubscribeUrl,
+        ...(payload.templateVariables || {}),
+      };
+
       const response = await mailtrapClient.send({
         from: { name: sender.name, email: sender.address },
         to: [{ email: payload.to, name: payload.name || "Subscriber" }],
         template_uuid: templateUuid,
-        template_variables: payload.templateVariables || {
-          company_info_name: sender.name,
-          name: payload.name || "Subscriber",
-        },
+        template_variables: templateVars,
       });
       console.log(`[Mailtrap Template Send Success]: Dispatched single/template to ${payload.to}`, response);
       return { success: true };
@@ -100,6 +141,8 @@ export async function sendEmail(payload: EmailPayload): Promise<{ success: boole
   try {
     const sender = getSender();
     const mailtrapClient = getMailtrapClient(false);
+    const processedHtml = processEmailHtml(payload.html, payload.to);
+    const unsubscribeUrl = getUnsubscribeUrl(payload.to);
 
     // 1. Try Mailtrap Official API Client
     if (mailtrapClient) {
@@ -107,7 +150,11 @@ export async function sendEmail(payload: EmailPayload): Promise<{ success: boole
         from: { name: sender.name, email: sender.address },
         to: [{ email: payload.to, name: payload.name || "Reader" }],
         subject: payload.subject,
-        html: payload.html,
+        html: processedHtml,
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
       });
       console.log(`[Mailtrap API Send Success]: Dispatched to ${payload.to}`, response);
       return { success: true };
@@ -120,7 +167,11 @@ export async function sendEmail(payload: EmailPayload): Promise<{ success: boole
         from: `"${sender.name}" <${sender.address}>`,
         to: payload.name ? `"${payload.name}" <${payload.to}>` : payload.to,
         subject: payload.subject,
-        html: payload.html,
+        html: processedHtml,
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
       });
       console.log(`[Mailtrap SMTP Send Success]: Dispatched to ${payload.to} | MessageId: ${info.messageId}`);
       return { success: true };
@@ -137,7 +188,7 @@ export async function sendEmail(payload: EmailPayload): Promise<{ success: boole
 }
 
 /**
- * Broadcast Mail (Batch bulk mailing for new posts and subscriber updates using Mailtrap Bulk API)
+ * Broadcast Mail (Batch bulk mailing for new posts and subscriber updates using Mailtrap Bulk API or SMTP)
  */
 export async function sendBroadcast(payload: BroadcastPayload): Promise<{
   success: boolean;
@@ -152,34 +203,42 @@ export async function sendBroadcast(payload: BroadcastPayload): Promise<{
     const sender = getSender();
     const bulkMailtrapClient = getMailtrapClient(true);
     const smtp = getSmtpTransporter();
-    const BATCH_SIZE = 50;
     let sentCount = 0;
 
-    for (let i = 0; i < payload.recipients.length; i += BATCH_SIZE) {
-      const batch = payload.recipients.slice(i, i + BATCH_SIZE);
+    // Send individually or in parallel batches so each recipient receives their personalized __unsubscribe_url__
+    for (const recipient of payload.recipients) {
+      const recipientHtml = processEmailHtml(payload.html, recipient.address);
+      const unsubscribeUrl = getUnsubscribeUrl(recipient.address);
 
       if (bulkMailtrapClient) {
         await bulkMailtrapClient.send({
           from: { name: sender.name, email: sender.address },
-          to: batch.map((r) => ({ email: r.address, name: r.name || "Subscriber" })),
+          to: [{ email: recipient.address, name: recipient.name || "Subscriber" }],
           subject: payload.subject,
-          html: payload.html,
+          html: recipientHtml,
+          headers: {
+            "List-Unsubscribe": `<${unsubscribeUrl}>`,
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          },
         });
-        sentCount += batch.length;
+        sentCount++;
       } else if (smtp) {
-        const bccList = batch.map((r) => (r.name ? `"${r.name}" <${r.address}>` : r.address)).join(", ");
         await smtp.sendMail({
           from: `"${sender.name}" <${sender.address}>`,
-          bcc: bccList,
+          to: recipient.name ? `"${recipient.name}" <${recipient.address}>` : recipient.address,
           subject: payload.subject,
-          html: payload.html,
+          html: recipientHtml,
+          headers: {
+            "List-Unsubscribe": `<${unsubscribeUrl}>`,
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          },
         });
-        sentCount += batch.length;
+        sentCount++;
       } else {
         console.log(
-          `[Broadcast Notice - Set MAILTRAP_TOKEN or MAILTRAP_USER/PASS in .env] Subject: ${payload.subject} | Recipients: ${payload.recipients.length}`
+          `[Broadcast Notice - Set MAILTRAP_TOKEN or MAILTRAP_USER/PASS in .env] Subject: ${payload.subject} | Recipient: ${recipient.address}`
         );
-        return { success: true, sentCount: payload.recipients.length };
+        sentCount++;
       }
     }
 

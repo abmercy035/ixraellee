@@ -90,7 +90,7 @@ export async function POST(request: Request) {
                   <a href="${postUrl}" style="background-color: #0088CC; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block;">Read Full Story →</a>
                 </div>
                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0 16px;" />
-                <p style="font-size: 12px; color: #94a3b8; margin: 0;">You received this update because you subscribed to Ixraellee Journal.</p>
+                <p style="font-size: 12px; color: #94a3b8; margin: 0;">You received this update because you subscribed to Ixraellee Journal. <a href="__unsubscribe_url__" style="color: #0088CC; text-decoration: underline;">unsubscribe</a></p>
               </div>
             `;
 

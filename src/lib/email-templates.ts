@@ -138,7 +138,7 @@ export function getSubscriptionWelcomeTemplate(name?: string, siteUrl: string = 
 
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Ixraellee Journal. All rights reserved.</p>
-          <p>You received this because you subscribed on <a href="${siteUrl}">${displayDomain}</a>.</p>
+          <p>You received this because you subscribed on <a href="${siteUrl}">${displayDomain}</a>. <a href="__unsubscribe_url__">unsubscribe</a></p>
         </div>
       </div>
     </div>
